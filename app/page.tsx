@@ -122,11 +122,12 @@ function MusicBox({ open = false, className = "" }: { open?: boolean; className?
     <div className={`music-box ${open ? "box-open" : ""} ${className}`} aria-hidden="true">
       <div className="box-aura" />
       <div className="box-crown"><i /><i /><i /></div>
-      <div className="box-lid"><div className="lid-inlay"><span>F</span><i>✿</i></div></div>
-      <div className="box-stage"><i /><b /><span>one of one</span></div>
-      <div className="box-body"><div className="box-drawer"><span /></div><i className="body-line" /></div>
+      <div className="box-lid"><i className="lid-edge" /><div className="lid-inlay"><b className="lid-glass" /><span>F</span><i>✿</i></div></div>
+      <div className="box-hinges"><i /><i /></div>
+      <div className="box-stage"><i className="stage-ring" /><b className="stage-disc" /><span>one of one</span><em className="box-mechanism"><i /><b /></em></div>
+      <div className="box-body"><span className="body-glaze" /><div className="box-drawer"><i /><span /></div><i className="body-line" /><b className="body-stud stud-left" /><b className="body-stud stud-right" /></div>
       <div className="box-feet"><i /><i /></div>
-      <div className="winding-key"><i /><b /></div>
+      <div className="winding-key"><span /><i /><b /></div>
       <div className="box-plinth"><i /><b /></div>
     </div>
   );
