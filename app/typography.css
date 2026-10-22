@@ -53,6 +53,50 @@
 .finale-ticket button { min-height: 44px; font-size: 12px; }
 .ticket-number { font-size: 9px; }
 
+/* Keep action text on a flat, opaque surface. Animated backdrops and nested
+   3D planes otherwise make browsers repeatedly rasterize the button labels. */
+.cover-card {
+  transform: translateY(-50%);
+  transform-style: flat;
+  background: linear-gradient(145deg, #123b60, #061e36);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: box-shadow .25s ease;
+}
+.cover-card > * { transform: none; }
+.movie-scene.finale-scene.is-active { transform: none; transform-style: flat; filter: none; }
+.finale-ticket {
+  transform: none;
+  transform-style: flat;
+  background: #f8fcff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: stableCardReveal .6s .06s both;
+}
+.cover-card > button, .cover-card > button:hover, .finale-ticket button {
+  color: #174f91;
+  background: #eef8ff;
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-weight: 700;
+  font-synthesis: none;
+  opacity: 1;
+  text-shadow: none;
+  transform: none;
+  transform-style: flat;
+  filter: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.cover-card > button > span {
+  font-family: inherit;
+  font-weight: 700;
+  opacity: 1;
+  transform: none;
+  text-shadow: none;
+}
+@keyframes stableCardReveal { from { opacity: 0; } to { opacity: 1; } }
+
 @media (max-width: 760px) {
   .story-copy h1, .story-copy h2 { font-size: clamp(33px, 9.1vw, 42px); line-height: 1.18; }
   .story-copy > span { margin-top: 15px; max-width: 350px; font-size: 15px; line-height: 1.6; }
@@ -68,7 +112,7 @@
   .model-hint { font-size: 10px; }
   .wish-constellation span { font-size: 9px; }
 
-  .cover-card { padding: 20px 18px 18px; }
+  .cover-card { padding: 20px 18px 18px; transform: none; }
   .cover-card > p { margin-bottom: 9px; font-size: 9px; letter-spacing: .14em; }
   .cover-card h1 { font-size: clamp(45px, 13vw, 60px); line-height: 1.1; }
   .cover-card h1 small { margin-bottom: 8px; font-size: 9px; }
@@ -120,7 +164,7 @@
   .gift-copy h2 { font-size: 29px; }
   .gift-copy > span { font-size: 13px; }
   .model-stage { top: 5%; height: 82%; }
-  .cover-card { padding: 14px 22px; }
+  .cover-card { padding: 14px 22px; transform: translateY(-50%); }
   .cover-card h1 { font-size: clamp(38px, 5.8vw, 55px); }
   .cover-card > p, .cover-card h1 small { font-size: 8px; }
   .cover-card > span { font-size: 12px; }

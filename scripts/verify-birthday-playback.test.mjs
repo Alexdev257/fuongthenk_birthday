@@ -162,7 +162,10 @@ async function mountFilm() {
   };
   return {
     render,
-    button(tree, label) { return walk(tree, node => node.type === "button" && JSON.stringify(node.props.children).includes(label)); },
+    button(tree, containerClass) {
+      const container = walk(tree, node => typeof node.props?.className === "string" && node.props.className.split(" ").includes(containerClass));
+      return walk(container, node => node.type === "button");
+    },
     key(key) { listeners.get("keydown")?.({ target: {}, code: key, key, preventDefault() {} }); },
     frame(time) { const pending = [...frames.values()]; frames.clear(); pending.forEach(callback => callback(time)); return render(); },
     frameCount: () => frames.size,
@@ -173,7 +176,7 @@ async function mountFilm() {
 test("the actual film stays on its last scene until the replay button is clicked", async () => {
   const film = await mountFilm();
   let tree = film.render();
-  film.button(tree, "Mở cánh cửa").props.onClick();
+  film.button(tree, "cover-card").props.onClick();
   tree = film.render();
   const original = AudioContextMock.instances.at(-1);
   for (let time = 0; time <= 31000; time += 100) tree = film.frame(time);
@@ -189,7 +192,7 @@ test("the actual film stays on its last scene until the replay button is clicked
   for (const key of ["Space", "ArrowLeft", "ArrowRight", "m"]) { film.key(key); tree = film.render(); }
   assert.match(tree.props.className, /scene-finale/);
   assert.equal(AudioContextMock.instances.length, count, "keys cannot restart finished music");
-  film.button(tree, "Xem lại thước phim").props.onClick();
+  film.button(tree, "finale-ticket").props.onClick();
   tree = film.render();
   assert.match(tree.props.className, /scene-prologue/);
   assert.equal(AudioContextMock.instances.length, count + 1);
