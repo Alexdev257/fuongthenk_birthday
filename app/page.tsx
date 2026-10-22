@@ -1,234 +1,229 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
 
-const wishes = [
-  { title: "Bình yên", text: "Mong những ngày phía trước luôn dịu dàng với FuongThenn.", color: "sky" },
-  { title: "Rực rỡ", text: "Mong bạn luôn tự tin tỏa sáng theo cách rất riêng của mình.", color: "blue" },
-  { title: "May mắn", text: "Mong mọi điều bạn chờ đợi đều tìm được đường để ghé thăm.", color: "indigo" },
-];
-
-const petals = [
-  [7, 12, 0.1, 0.8], [16, 72, 0.4, 1.1], [26, 28, 0.2, 0.9],
-  [38, 83, 0.8, 1.2], [49, 8, 0.5, 0.8], [61, 70, 0.3, 1.1],
-  [73, 17, 0.7, 0.9], [85, 77, 0, 1.2], [94, 34, 0.6, 0.9],
+const SCENES = [
+  { id: "opening", label: "Mở đầu", duration: 6 },
+  { id: "letter", label: "Lá thư", duration: 8 },
+  { id: "garden", label: "Khu vườn", duration: 8 },
+  { id: "stars", label: "Vì sao", duration: 8 },
+  { id: "reveal", label: "Bí mật", duration: 7 },
+  { id: "cake", label: "Điều ước", duration: 12 },
+  { id: "finale", label: "Lời chúc", duration: 12 },
 ] as const;
 
-function Flower({ className = "", small = false }: { className?: string; small?: boolean }) {
+const TOTAL_DURATION = SCENES.reduce((sum, scene) => sum + scene.duration, 0);
+const sceneStarts = SCENES.map((_, index) => SCENES.slice(0, index).reduce((sum, scene) => sum + scene.duration, 0));
+const petals = Array.from({ length: 24 }, (_, index) => ({ left: (index * 37 + 9) % 96, delay: (index * 0.31) % 4, duration: 4.8 + (index % 6) * 0.48, size: 8 + (index % 4) * 3, drift: -32 + (index % 7) * 11 }));
+const stars = Array.from({ length: 38 }, (_, index) => ({ left: (index * 47 + 3) % 100, top: (index * 29 + 7) % 92, delay: (index % 8) * 0.28, size: 1 + (index % 3) }));
+
+function formatTime(value: number) {
+  const seconds = Math.max(0, Math.floor(value));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+function Flower({ className = "", delay = 0 }: { className?: string; delay?: number }) {
   return (
-    <svg className={className} width={small ? 42 : 74} height={small ? 42 : 74} viewBox="0 0 74 74" fill="none" aria-hidden="true">
-      <path d="M37 38C23 45 17 54 17 68" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M28 49C20 45 14 46 10 53C18 58 25 57 30 53" fill="#BCE9FF" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M44 49C53 44 60 46 63 53C55 59 48 57 43 54" fill="#D6F2FF" stroke="currentColor" strokeWidth="1.5" />
-      <g className="flower-head">
-        {[0, 72, 144, 216, 288].map((rotation, index) => (
-          <ellipse key={rotation} cx="37" cy="19" rx="9" ry="16" transform={`rotate(${rotation} 37 19)`} fill={index % 2 ? "#D6F2FF" : "#F8FCFF"} stroke="currentColor" strokeWidth="1.5" />
-        ))}
-        <circle cx="37" cy="19" r="7" fill="#3478E5" />
-        <circle cx="34.5" cy="16.5" r="2" fill="white" fillOpacity=".8" />
+    <svg className={`flower ${className}`} style={{ "--delay": `${delay}s` } as React.CSSProperties} viewBox="0 0 120 180" fill="none" aria-hidden="true">
+      <path d="M60 76C48 110 48 139 53 178" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <path d="M53 126C35 109 20 111 12 126c16 14 31 15 43 6M56 143c18-19 35-18 44-3-14 15-31 18-45 9" fill="#a9dbc9" stroke="currentColor" strokeWidth="3" />
+      <g className="flower-bloom">
+        {[0, 72, 144, 216, 288].map((rotation, index) => <ellipse key={rotation} cx="60" cy="52" rx="22" ry="39" transform={`rotate(${rotation} 60 52)`} fill={index % 2 ? "#c9ecff" : "#fafdff"} stroke="#3b87d1" strokeWidth="2" />)}
+        <circle cx="60" cy="52" r="16" fill="#377fd0" /><circle cx="54" cy="46" r="4" fill="#fff" fillOpacity=".72" />
       </g>
     </svg>
   );
 }
 
 function Sparkle({ className = "" }: { className?: string }) {
-  return <svg className={className} width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M14 1C14 9.5 9.5 14 1 14C9.5 14 14 18.5 14 27C14 18.5 18.5 14 27 14C18.5 14 14 9.5 14 1Z" fill="currentColor" /></svg>;
+  return <svg className={`sparkle ${className}`} viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1c0 12.4-6.6 19-19 19 12.4 0 19 6.6 19 19 0-12.4 6.6-19 19-19-12.4 0-19-6.6-19-19Z" fill="currentColor" /></svg>;
 }
 
-function SoundIcon({ muted }: { muted: boolean }) {
-  return muted ? (
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.7 8.5H3v7h3.7L11 19V5Zm4.2 5.2 5.6 5.6m0-5.6-5.6 5.6" /></svg>
-  ) : (
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.7 8.5H3v7h3.7L11 19V5Zm4.3 4a4 4 0 0 1 0 6m2.6-8.6a8 8 0 0 1 0 11.2" /></svg>
-  );
+function Cloud({ className = "" }: { className?: string }) {
+  return <span className={`cloud ${className}`} aria-hidden="true"><i /><b /></span>;
 }
 
-function Bouquet() {
+function PlayIcon({ playing }: { playing: boolean }) {
+  return playing ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12M16 6v12" /></svg> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z" /></svg>;
+}
+
+function VolumeIcon({ muted }: { muted: boolean }) {
+  return muted ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 7 9H3v6h4l4 4V5Zm4 6 6 6m0-6-6 6" /></svg> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 7 9H3v6h4l4 4V5Zm4.5 4a4 4 0 0 1 0 6m2.5-8.5a8 8 0 0 1 0 11" /></svg>;
+}
+
+function FullscreenIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>;
+}
+
+function SceneFrame({ active, children, className }: { active: boolean; children: React.ReactNode; className: string }) {
+  return <section className={`movie-scene ${className} ${active ? "is-active" : ""}`} aria-hidden={!active}>{children}</section>;
+}
+
+function CakeModel({ active }: { active: boolean }) {
+  const ModelViewer = "model-viewer" as React.ElementType;
+  useEffect(() => { if (active && typeof window !== "undefined") void import("@google/model-viewer"); }, [active]);
   return (
-    <svg className="bouquet" viewBox="0 0 440 440" fill="none" aria-label="Bó hoa xanh dành tặng FuongThenn" role="img">
-      <defs>
-        <linearGradient id="paper" x1="130" y1="170" x2="313" y2="392" gradientUnits="userSpaceOnUse"><stop stopColor="#fff" /><stop offset="1" stopColor="#DDEEFF" /></linearGradient>
-        <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#FDFEFF" /><stop offset="1" stopColor="#9FD7FF" /></linearGradient>
-        <filter id="shadow" x="70" y="55" width="310" height="365" filterUnits="userSpaceOnUse"><feDropShadow dx="0" dy="16" stdDeviation="13" floodColor="#2674CA" floodOpacity=".2" /></filter>
-      </defs>
-      <circle cx="220" cy="207" r="156" fill="#EAF6FF" />
-      <circle cx="220" cy="207" r="132" stroke="#B8DFFF" strokeDasharray="4 12" />
-      <g filter="url(#shadow)">
-        <path d="m122 167 92 67L112 346c-13 26 11 50 36 36l74-42 74 42c25 14 49-10 36-36L230 234l88-67-196 0Z" fill="url(#paper)" stroke="#2870CA" strokeWidth="2" />
-        <path d="m122 167 92 67-36 75-56-142Zm196 0-88 67 37 75 51-142Z" fill="#CDE9FF" />
-        <path d="M161 155c28 43 46 73 60 135m55-137c-30 39-46 79-55 137m-6-142c3 43 5 84 6 142" stroke="#4D9B7F" strokeWidth="5" strokeLinecap="round" />
-        <path d="M177 219c-33-18-50-11-60 9 25 14 47 10 64-1m83-2c29-21 51-17 61 1-21 17-44 18-64 7" fill="#A8DFC9" stroke="#4D9B7F" strokeWidth="2" />
-        {[
-          { x: 149, y: 140, rx: 23, ry: 36, rotations: [-28, 44, 116, 188, 260], cls: "bouquet-flower-one" },
-          { x: 220, y: 113, rx: 25, ry: 39, rotations: [0, 72, 144, 216, 288], cls: "bouquet-flower-two" },
-          { x: 290, y: 146, rx: 22, ry: 34, rotations: [20, 92, 164, 236, 308], cls: "bouquet-flower-three" },
-        ].map((flower) => (
-          <g className={`bouquet-flower ${flower.cls}`} key={flower.x}>
-            {flower.rotations.map((rotation) => <ellipse key={rotation} cx={flower.x} cy={flower.y} rx={flower.rx} ry={flower.ry} transform={`rotate(${rotation} ${flower.x} ${flower.y})`} fill="url(#petal)" stroke="#3478E5" strokeWidth="2" />)}
-            <circle cx={flower.x} cy={flower.y} r={flower.x === 220 ? 15 : 13} fill="#2469CD" />
-          </g>
-        ))}
-        <path d="M168 321c32 26 69 29 107 0" stroke="#2870CA" strokeWidth="5" strokeLinecap="round" />
-        <path d="M221 318c-23-17-47 1-37 21 8 16 28 8 37-3 9 11 29 19 37 3 10-20-14-38-37-21Z" fill="#6BB7F2" stroke="#2870CA" strokeWidth="2" />
-      </g>
-      <g fill="#3478E5"><circle cx="78" cy="145" r="5" /><circle cx="353" cy="104" r="4" /><circle cx="367" cy="261" r="6" /></g>
-      <path d="M93 85c0 13-7 20-20 20 13 0 20 7 20 20 0-13 7-20 20-20-13 0-20-7-20-20Zm268 83c0 10-5 15-15 15 10 0 15 5 15 15 0-10 5-15 15-15-10 0-15-5-15-15Z" fill="#85CBFF" />
-    </svg>
+    <div className={`model-stage ${active ? "model-live" : ""}`}>
+      <div className="model-halo" />
+      <ModelViewer className="cake-model" src="/models/fuongthenn-birthday-cake.glb" poster="/models/fuongthenn-cake-preview.png" alt="Mô hình 3D bánh sinh nhật hoa xanh trắng dành cho FuongThenn" camera-orbit="28deg 73deg 2.8m" min-camera-orbit="auto 62deg 2.25m" max-camera-orbit="auto 82deg 3.6m" field-of-view="28deg" shadow-intensity="1.15" shadow-softness=".85" exposure="1.08" environment-image="neutral" auto-rotate rotation-per-second="12deg" interaction-prompt="none" disable-zoom reveal="auto">
+        <div slot="progress-bar" className="model-progress"><span /></div>
+      </ModelViewer>
+      <div className="model-floor" /><span className="model-orbit orbit-one" /><span className="model-orbit orbit-two" />
+    </div>
   );
 }
 
-function Cake({ blown }: { blown: boolean }) {
-  return (
-    <svg className="cake" viewBox="0 0 420 390" fill="none" aria-hidden="true">
-      <defs><linearGradient id="cakeSide" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#DDF2FF" /><stop offset="1" stopColor="#8CCAF5" /></linearGradient><filter id="cakeShadow" x="48" y="80" width="324" height="285" filterUnits="userSpaceOnUse"><feDropShadow dx="0" dy="18" stdDeviation="14" floodColor="#1C5DA7" floodOpacity=".17" /></filter></defs>
-      <ellipse cx="210" cy="336" rx="153" ry="22" fill="#B9DCFA" opacity=".5" />
-      <g filter="url(#cakeShadow)">
-        <path d="M88 205h244v111c0 23-55 42-122 42S88 339 88 316V205Z" fill="url(#cakeSide)" stroke="#2367B7" strokeWidth="3" />
-        <ellipse cx="210" cy="205" rx="122" ry="48" fill="#FAFDFF" stroke="#2367B7" strokeWidth="3" />
-        <path d="M89 205c7 22 28 22 38 4 12-22 28-18 39 2 10 18 30 17 40-1 11-21 29-21 40 0 10 18 30 19 40 1 12-20 28-24 40-2 10 18 31 18 38-4" stroke="#78BFF1" strokeWidth="14" strokeLinecap="round" />
-        <path d="M115 289c15 12 31 12 46 0m45 14c15 12 31 12 46 0m39-14c7 6 14 9 22 9" stroke="#fff" strokeWidth="7" strokeLinecap="round" opacity=".75" />
-        <rect x="199" y="116" width="22" height="85" rx="8" fill="#F7FBFF" stroke="#2367B7" strokeWidth="3" />
-        <path d="m201 129 18 12m-18 14 18 12" stroke="#78BFF1" strokeWidth="5" />
-        {!blown ? <g className="flame"><path d="M210 111c-21-15-16-36 4-57 0 16 18 22 10 43-3 8-8 13-14 14Z" fill="#76C7FF" stroke="#2367B7" strokeWidth="2" /><path d="M212 103c-9-8-5-18 3-28 0 9 7 13 3 22-1 3-3 5-6 6Z" fill="white" /></g> : <path className="smoke" d="M210 109c-18-16 18-22 0-40-13-13 9-20 5-34" stroke="#8CB4D0" strokeWidth="4" strokeLinecap="round" />}
-        <g fill="#3A84D7"><circle cx="145" cy="200" r="8" /><circle cx="275" cy="197" r="7" /><circle cx="188" cy="220" r="6" /><circle cx="238" cy="217" r="6" /></g>
-      </g>
-    </svg>
-  );
-}
-
-function playChime() {
-  if (typeof window === "undefined") return;
+function startAmbientAudio() {
   const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioCtx) return;
-  const ctx = new AudioCtx();
-  const now = ctx.currentTime;
-  [523.25, 659.25, 783.99].forEach((frequency, index) => {
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, now + index * 0.12);
-    gain.gain.linearRampToValueAtTime(0.08, now + index * 0.12 + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.12 + 0.7);
-    oscillator.connect(gain).connect(ctx.destination);
-    oscillator.start(now + index * 0.12);
-    oscillator.stop(now + index * 0.12 + 0.72);
-  });
-  window.setTimeout(() => void ctx.close(), 1400);
+  if (!AudioCtx) return null;
+  const context = new AudioCtx();
+  const master = context.createGain();
+  const filter = context.createBiquadFilter();
+  master.gain.value = 0.16;
+  filter.type = "lowpass";
+  filter.frequency.value = 1900;
+  master.connect(filter).connect(context.destination);
+  const notes = [261.63, 329.63, 392, 523.25, 392, 329.63];
+  let cursor = 0;
+  const playNote = () => {
+    const now = context.currentTime;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = cursor % 2 ? "sine" : "triangle";
+    oscillator.frequency.value = notes[cursor % notes.length];
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.055, now + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.3);
+    oscillator.connect(gain).connect(master);
+    oscillator.start(now);
+    oscillator.stop(now + 1.35);
+    cursor += 1;
+  };
+  playNote();
+  const timer = window.setInterval(playNote, 920);
+  return { context, master, timer };
 }
 
 export default function Home() {
   const [started, setStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [activeWish, setActiveWish] = useState<number | null>(null);
-  const [blown, setBlown] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const storyRef = useRef<HTMLElement>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const elapsedRef = useRef(0);
+  const lastFrameRef = useRef<number | null>(null);
+  const audioRef = useRef<ReturnType<typeof startAmbientAudio>>(null);
 
+  const sceneIndex = useMemo(() => {
+    const index = SCENES.findIndex((scene, itemIndex) => elapsed < sceneStarts[itemIndex] + scene.duration);
+    return index === -1 ? SCENES.length - 1 : index;
+  }, [elapsed]);
+  const sceneElapsed = elapsed - sceneStarts[sceneIndex];
+  const wishReleased = sceneIndex > 5 || (sceneIndex === 5 && sceneElapsed > 8.2);
+
+  useEffect(() => { elapsedRef.current = elapsed; }, [elapsed]);
   useEffect(() => {
-    const updateProgress = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0);
+    if (!started || !playing) { lastFrameRef.current = null; return; }
+    let frame = 0;
+    const tick = (time: number) => {
+      if (lastFrameRef.current === null) lastFrameRef.current = time;
+      const delta = Math.min((time - lastFrameRef.current) / 1000, 0.1);
+      lastFrameRef.current = time;
+      const next = Math.min(TOTAL_DURATION, elapsedRef.current + delta);
+      elapsedRef.current = next;
+      setElapsed(next);
+      if (next >= TOTAL_DURATION) setPlaying(false);
+      else frame = window.requestAnimationFrame(tick);
     };
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    return () => window.removeEventListener("scroll", updateProgress);
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [playing, started]);
+  useEffect(() => () => { if (audioRef.current) { window.clearInterval(audioRef.current.timer); void audioRef.current.context.close(); } }, []);
+
+  const ensureAudio = useCallback(() => {
+    if (!audioRef.current) audioRef.current = startAmbientAudio();
+    return audioRef.current;
   }, []);
-
-  useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add("is-visible"); }), { threshold: 0.16 });
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
-
-  const startStory = useCallback(() => {
-    setStarted(true);
-    if (!muted) playChime();
-    window.setTimeout(() => storyRef.current?.scrollIntoView({ behavior: "smooth" }), 180);
-  }, [muted]);
-
-  const blowCandle = () => {
-    if (blown) return;
-    setBlown(true);
-    if (!muted) playChime();
+  const beginFilm = () => {
+    setStarted(true); setPlaying(true); setElapsed(0); elapsedRef.current = 0;
+    const audio = ensureAudio();
+    if (audio) audio.master.gain.setTargetAtTime(muted ? 0 : 0.16, audio.context.currentTime, 0.08);
   };
+  const togglePlayback = () => {
+    if (!started) return beginFilm();
+    if (elapsed >= TOTAL_DURATION) { setElapsed(0); elapsedRef.current = 0; setPlaying(true); void ensureAudio()?.context.resume(); return; }
+    setPlaying((value) => { const next = !value; const audio = ensureAudio(); if (audio) void (next ? audio.context.resume() : audio.context.suspend()); return next; });
+  };
+  const toggleMuted = () => {
+    setMuted((value) => { const next = !value; const audio = ensureAudio(); if (audio) audio.master.gain.setTargetAtTime(next ? 0 : 0.16, audio.context.currentTime, 0.08); return next; });
+  };
+  const seek = (value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); };
+  const jumpScene = (index: number) => seek(sceneStarts[index] + 0.05);
+  const toggleFullscreen = () => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); };
 
   return (
-    <main className={started ? "story-started" : ""}>
-      <div className="scroll-progress" style={{ width: `${progress}%` }} aria-hidden="true" />
-      <nav className="nav-shell" aria-label="Điều hướng chính">
-        <a className="brand" href="#top" aria-label="Về đầu trang"><span className="brand-flower">✿</span><span>FOR FUONGTHENN</span></a>
-        <div className="nav-actions">
-          <span className="nav-note">một ngày thật đặc biệt</span>
-          <button className="sound-button" type="button" onClick={() => { setMuted((value) => !value); if (muted) playChime(); }} aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}>
-            <SoundIcon muted={muted} /><span>{muted ? "Bật nhạc" : "Âm thanh"}</span>
-          </button>
-        </div>
-      </nav>
+    <main className={`film-app scene-${SCENES[sceneIndex].id} ${started ? "film-started" : ""}`}>
+      <div className="film-grain" aria-hidden="true" />
+      <header className="film-header">
+        <div className="film-brand"><span>✿</span><p>FOR FUONGTHENN<small>AN INTERACTIVE BIRTHDAY FILM</small></p></div>
+        <div className="film-chapter"><span>{String(sceneIndex + 1).padStart(2, "0")}</span><p>{SCENES[sceneIndex].label}</p></div>
+      </header>
 
-      <section className="hero" id="top">
-        <div className="hero-grid" aria-hidden="true" />
-        {petals.map(([left, top, delay, scale], index) => <span className={`floating-petal petal-${(index % 3) + 1}`} key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%`, animationDelay: `${delay}s`, transform: `scale(${scale})` }} />)}
-        <div className="hero-copy">
-          <div className="eyebrow"><span /> Một câu chuyện dành riêng cho</div>
-          <h1>FuongThenn,<span>hôm nay vũ trụ</span>có một bí mật nhỏ.</h1>
-          <p className="hero-lede">Có một món quà đã đi qua mây xanh, những vì sao và cả một khu vườn đầy hoa — chỉ để tìm đến đúng một người.</p>
-          <button className="primary-button" type="button" onClick={startStory}><span>Mở câu chuyện</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 12 10 0m-4-4 4 4-4 4" /></svg></button>
-          <p className="micro-copy">Chạm để bắt đầu · Có một chút phép màu</p>
-        </div>
-        <div className="hero-art">
-          <span className="art-label label-one">một bó hoa</span><span className="art-label label-two">cho riêng bạn</span>
-          <Sparkle className="sparkle sparkle-one" /><Sparkle className="sparkle sparkle-two" /><Bouquet />
-          <div className="orbit-text" aria-hidden="true">HAPPY • BIRTHDAY • FUONGTHENN •</div>
-        </div>
-        <a className="scroll-cue" href="#story" aria-label="Cuộn xuống câu chuyện"><span>CUỘN ĐỂ KHÁM PHÁ</span><i /></a>
-      </section>
+      <div className="scene-stack" aria-live="polite">
+        <SceneFrame active={sceneIndex === 0} className="opening-scene">
+          <div className="day-orb" /><Cloud className="cloud-opening-one" /><Cloud className="cloud-opening-two" />
+          <div className="opening-copy"><p>MỘT NGÀY THẬT ĐẶC BIỆT</p><h1>FuongThenn,</h1><h2>vũ trụ có một bí mật nhỏ.</h2><span>Một món quà đang trên đường tìm đến bạn.</span></div>
+          <Flower className="opening-flower flower-left" /><Flower className="opening-flower flower-right" delay={-.8} />
+          <Sparkle className="opening-sparkle sparkle-a" /><Sparkle className="opening-sparkle sparkle-b" />
+        </SceneFrame>
 
-      <section className="story-section" id="story" ref={storyRef}>
-        <div className="section-intro" data-reveal><p className="section-number">01 · CHUYỆN BẮT ĐẦU</p><h2>Mọi điều đẹp đẽ đều bắt đầu từ một tín hiệu rất nhỏ.</h2><p>Và sáng nay, tín hiệu ấy xuất hiện trên bầu trời.</p></div>
-        <div className="chapter-list">
-          <article className="chapter chapter-cloud" data-reveal>
-            <div className="chapter-visual cloud-scene" aria-hidden="true"><span className="sun-disc" /><span className="cloud cloud-a" /><span className="cloud cloud-b" /><span className="tiny-star star-a">✦</span><span className="tiny-star star-b">✦</span><div className="letter"><span className="letter-heart">♥</span><span className="letter-line" /><span className="letter-line short" /></div><span className="dotted-path" /></div>
-            <div className="chapter-copy"><p className="chapter-kicker">CHƯƠNG I · TÍN HIỆU ĐẦU TIÊN</p><h3>Một lá thư rơi xuống từ mây.</h3><p>Nó không ghi địa chỉ, chỉ có một dòng thật nhỏ: “Hãy mang điều dịu dàng nhất đến cho FuongThenn.”</p><span className="chapter-stamp">gửi bằng phép màu ✦</span></div>
-          </article>
-          <article className="chapter chapter-garden" data-reveal>
-            <div className="chapter-copy"><p className="chapter-kicker">CHƯƠNG II · MẬT MÃ CỦA KHU VƯỜN</p><h3>Những bông hoa đã biết câu trả lời.</h3><p>Mỗi cánh hoa giữ một lời chúc. Càng nở rộ, chúng càng thì thầm: bình yên, rực rỡ và thật nhiều may mắn.</p><span className="chapter-stamp">ba điều luôn ở bên bạn ✿</span></div>
-            <div className="chapter-visual garden-scene" aria-hidden="true"><span className="garden-hill hill-back" /><span className="garden-hill hill-front" /><Flower className="garden-flower flower-a" /><Flower className="garden-flower flower-b" small /><Flower className="garden-flower flower-c" /><Flower className="garden-flower flower-d" small /><span className="butterfly">⌁</span></div>
-          </article>
-          <article className="chapter chapter-stars" data-reveal>
-            <div className="chapter-visual star-scene" aria-hidden="true"><span className="planet-ring" /><span className="moon-face"><i /><b /></span><span className="comet" /><span className="constellation"><i /><i /><i /><i /></span><p>f · t</p></div>
-            <div className="chapter-copy"><p className="chapter-kicker">CHƯƠNG III · CHUYẾN ĐI CỦA NHỮNG VÌ SAO</p><h3>Cả bầu trời cùng chỉ về một hướng.</h3><p>Những vì sao xếp thành một con đường xanh lấp lánh. Ở cuối con đường ấy là khoảnh khắc hôm nay — và là bạn.</p><span className="chapter-stamp">đích đến đã ở rất gần ☾</span></div>
-          </article>
-          <article className="chapter chapter-reveal" data-reveal>
-            <div className="reveal-inner"><p className="chapter-kicker">CHƯƠNG IV · NGƯỜI CÂU CHUYỆN CHỜ ĐỢI</p><p className="tiny-intro">Lá thư cuối cùng cũng mở ra, và bên trong chỉ có một cái tên…</p><h3>FuongThenn</h3><p>Hóa ra, tất cả hoa, mây và ánh sao đều đang chuẩn bị cho ngày đặc biệt của bạn.</p><div className="signature-line"><span /> dành riêng cho bạn <span /></div></div>
-            <Flower className="corner-flower corner-flower-a" /><Flower className="corner-flower corner-flower-b" /><Sparkle className="corner-sparkle" />
-          </article>
-        </div>
-      </section>
+        <SceneFrame active={sceneIndex === 1} className="letter-scene">
+          <Cloud className="letter-cloud cloud-one" /><Cloud className="letter-cloud cloud-two" /><Cloud className="letter-cloud cloud-three" />
+          <div className="flying-envelope" aria-hidden="true"><div className="envelope-front"><span>♥</span></div><i /><b /></div>
+          <div className="scene-caption caption-bottom"><p>CHƯƠNG I · TÍN HIỆU ĐẦU TIÊN</p><h2>Một lá thư rơi xuống từ mây.</h2><span>“Hãy mang điều dịu dàng nhất đến cho FuongThenn.”</span></div><div className="flight-path" />
+        </SceneFrame>
 
-      <section className="wish-garden" id="wishes">
-        <div className="wish-heading" data-reveal><p className="section-number light">02 · KHU VƯỜN LỜI CHÚC</p><h2>Ba bông hoa, ba điều thật lòng.</h2><p>Chạm vào từng bông hoa để nghe khu vườn thì thầm.</p></div>
-        <div className="wish-flowers" data-reveal>
-          {wishes.map((wish, index) => <button className={`wish-flower wish-${wish.color} ${activeWish === index ? "active" : ""}`} key={wish.title} type="button" onClick={() => { setActiveWish(index); if (!muted) playChime(); }} aria-expanded={activeWish === index}><span className="wish-bloom" aria-hidden="true"><i /><i /><i /><i /><i /><b /></span><span className="wish-stem" aria-hidden="true"><i /></span><strong>{wish.title}</strong></button>)}
-        </div>
-        <div className={`wish-message ${activeWish !== null ? "visible" : ""}`} aria-live="polite">{activeWish !== null ? <><span>✦</span><p>{wishes[activeWish].text}</p><span>✦</span></> : <p>Chọn một bông hoa nhé</p>}</div>
-      </section>
+        <SceneFrame active={sceneIndex === 2} className="garden-scene">
+          <div className="garden-sun" /><div className="hill hill-back" /><div className="hill hill-front" />
+          <div className="flower-field" aria-hidden="true">{Array.from({ length: 9 }, (_, index) => <Flower key={index} className={`field-flower field-${index + 1}`} delay={index * -.23} />)}</div>
+          <div className="scene-caption caption-center"><p>CHƯƠNG II · MẬT MÃ CỦA KHU VƯỜN</p><h2>Mỗi cánh hoa giữ một lời chúc.</h2><div className="wish-words"><span>Bình yên</span><span>Rực rỡ</span><span>May mắn</span></div></div>
+          <span className="butterfly butterfly-one">⌁</span><span className="butterfly butterfly-two">⌁</span>
+        </SceneFrame>
 
-      <section className={`finale ${blown ? "wish-made" : ""}`} id="finale">
-        {blown && <div className="celebration" aria-hidden="true">{Array.from({ length: 32 }).map((_, index) => <i key={index} style={{ "--i": index } as React.CSSProperties} />)}</div>}
-        <div className="finale-copy" data-reveal><p className="section-number">03 · ĐIỀU ƯỚC CUỐI CÙNG</p><h2>{blown ? "Điều ước đã bay đến những vì sao!" : "Còn một ngọn nến đang chờ FuongThenn."}</h2><p>{blown ? "Chúc cho điều bạn vừa ước sớm trở thành một phần thật đẹp của những ngày phía trước." : "Nhắm mắt lại, nghĩ về một điều thật đẹp — rồi chạm để thổi nến nhé."}</p><button className="candle-button" type="button" onClick={blowCandle} disabled={blown}>{blown ? "Điều ước đã được gửi ✦" : "Thổi nến nào"}</button></div>
-        <div className="cake-wrap" data-reveal><Cake blown={blown} /><span className="cake-note">make a wish</span></div>
-      </section>
+        <SceneFrame active={sceneIndex === 3} className="stars-scene">
+          <div className="star-field" aria-hidden="true">{stars.map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, width: star.size, height: star.size, animationDelay: `${star.delay}s` }} />)}</div>
+          <div className="moon"><span /><i /></div><div className="planet-ring" /><div className="comet" />
+          <svg className="constellation" viewBox="0 0 280 180" aria-hidden="true"><path d="M15 130 68 64l62 31 48-72 83 51-42 84-89-63-47 55Z" />{[[15,130],[68,64],[130,95],[178,23],[261,74],[219,158],[83,150]].map(([x,y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="5" />)}</svg>
+          <div className="scene-caption caption-left light"><p>CHƯƠNG III · CHUYẾN ĐI CỦA NHỮNG VÌ SAO</p><h2>Cả bầu trời cùng chỉ về một hướng.</h2><span>Đích đến đã ở rất gần…</span></div>
+        </SceneFrame>
 
-      <section className="birthday-card">
-        <div className="card-shell" data-reveal>
-          <div className="card-topline"><span>WITH LOVE</span><span>✦</span><span>JUST FOR YOU</span></div><Sparkle className="card-sparkle card-sparkle-a" /><Sparkle className="card-sparkle card-sparkle-b" /><Flower className="card-flower card-flower-a" /><Flower className="card-flower card-flower-b" />
-          <p className="card-small">Và cuối cùng…</p><h2>Happy Birthday,</h2><h3>FuongThenn!</h3><p className="card-message">Chúc bạn một tuổi mới ngập tràn những điều trong trẻo như mây, dịu dàng như hoa và rực rỡ như cả bầu trời đêm. Mong bạn luôn được yêu thương, được là chính mình và gặp thật nhiều lý do để mỉm cười.</p><div className="card-seal"><span>F</span><small>✿</small></div><p className="card-closing">Một ngày sinh nhật thật hạnh phúc nhé!</p>
-        </div>
-      </section>
+        <SceneFrame active={sceneIndex === 4} className="reveal-scene">
+          <div className="reveal-rays" /><div className="petal-storm" aria-hidden="true">{petals.map((petal, index) => <i key={index} style={{ left: `${petal.left}%`, width: petal.size, height: petal.size * 1.55, animationDelay: `${petal.delay}s`, animationDuration: `${petal.duration}s`, "--drift": `${petal.drift}px` } as React.CSSProperties} />)}</div>
+          <div className="name-reveal"><p>NGƯỜI MÀ CẢ CÂU CHUYỆN CHỜ ĐỢI</p><h2>FuongThenn</h2><span>Hóa ra, tất cả hoa, mây và ánh sao đều đang chuẩn bị cho ngày đặc biệt của bạn.</span><div><i /> dành riêng cho bạn <i /></div></div>
+          <Sparkle className="reveal-sparkle reveal-one" /><Sparkle className="reveal-sparkle reveal-two" />
+        </SceneFrame>
 
-      <footer><a className="brand footer-brand" href="#top"><span className="brand-flower">✿</span><span>FOR FUONGTHENN</span></a><p>Được gói bằng hoa, mây và thật nhiều yêu thương.</p><a href="#top" className="back-top">Trở về đầu trang ↑</a></footer>
+        <SceneFrame active={sceneIndex === 5} className={`cake-scene ${wishReleased ? "wish-released" : ""}`}>
+          <div className="cake-stars" aria-hidden="true">{stars.slice(0, 20).map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
+          <div className="cake-copy"><p>CHƯƠNG IV · ĐIỀU ƯỚC CUỐI CÙNG</p><h2>{wishReleased ? "Điều ước đã bay đến những vì sao." : "Nhắm mắt và ước một điều thật đẹp."}</h2><span>{wishReleased ? "Mong điều ấy sớm trở thành sự thật, FuongThenn nhé." : "Một ngọn nến đang chờ bạn…"}</span><div className="wish-countdown"><i /><i /><i /></div></div>
+          <CakeModel active={sceneIndex === 5} /><div className={`magic-flame ${wishReleased ? "flame-out" : ""}`}><i /><span /></div>
+          {wishReleased && <div className="wish-burst" aria-hidden="true">{Array.from({ length: 32 }, (_, index) => <i key={index} style={{ "--i": index } as React.CSSProperties} />)}</div>}
+        </SceneFrame>
+
+        <SceneFrame active={sceneIndex === 6} className="finale-scene">
+          <div className="finale-petals" aria-hidden="true">{petals.map((petal, index) => <i key={index} style={{ left: `${petal.left}%`, width: petal.size, height: petal.size * 1.55, animationDelay: `${petal.delay}s`, animationDuration: `${petal.duration}s`, "--drift": `${petal.drift}px` } as React.CSSProperties} />)}</div>
+          <Flower className="finale-flower flower-one" /><Flower className="finale-flower flower-two" delay={-.9} /><Flower className="finale-flower flower-three" delay={-1.8} />
+          <div className="finale-card"><p>VÀ CUỐI CÙNG…</p><h2>Happy Birthday,</h2><h3>FuongThenn!</h3><span>Chúc bạn một tuổi mới trong trẻo như mây, dịu dàng như hoa và rực rỡ như cả bầu trời đêm.</span><strong>Luôn được yêu thương, luôn là chính mình<br />và luôn có thật nhiều lý do để mỉm cười.</strong><div className="final-seal">F<small>✿</small></div></div>
+          <Sparkle className="finale-sparkle final-sparkle-a" /><Sparkle className="finale-sparkle final-sparkle-b" />
+        </SceneFrame>
+      </div>
+
+      {!started && <div className="premiere-overlay"><div className="premiere-orbit orbit-a" /><div className="premiere-orbit orbit-b" /><div className="premiere-mark">✿</div><p>MỘT BỘ PHIM NHỎ DÀNH RIÊNG CHO</p><h1>FuongThenn</h1><span>01:01 · Bật âm thanh để cảm nhận trọn vẹn</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i> Bắt đầu câu chuyện</button><small>Trải nghiệm toàn màn hình · Không cần cuộn</small></div>}
+
+      <div className={`film-controls ${started ? "controls-visible" : ""}`}>
+        <div className="chapter-dots" aria-label="Chọn phân cảnh">{SCENES.map((scene, index) => <button type="button" key={scene.id} className={index === sceneIndex ? "active" : ""} onClick={() => jumpScene(index)} aria-label={`Đi đến cảnh ${scene.label}`}><i /><span>{scene.label}</span></button>)}</div>
+        <div className="control-row"><button className="icon-button primary-control" type="button" onClick={togglePlayback} aria-label={playing ? "Tạm dừng phim" : "Phát phim"}><PlayIcon playing={playing} /></button><span className="timecode">{formatTime(elapsed)}</span><input className="film-scrubber" type="range" min="0" max={TOTAL_DURATION} step="0.05" value={elapsed} onChange={(event) => seek(Number(event.target.value))} style={{ "--progress": `${(elapsed / TOTAL_DURATION) * 100}%` } as React.CSSProperties} aria-label="Tua phim" /><span className="timecode duration">{formatTime(TOTAL_DURATION)}</span><button className="icon-button" type="button" onClick={toggleMuted} aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}><VolumeIcon muted={muted} /></button><button className="icon-button fullscreen-button" type="button" onClick={toggleFullscreen} aria-label="Toàn màn hình"><FullscreenIcon /></button></div>
+      </div>
     </main>
   );
 }

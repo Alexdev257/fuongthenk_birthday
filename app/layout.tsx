@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Happy Birthday, FuongThenn! ✿",
-  description: "Một câu chuyện sinh nhật ngập tràn hoa, mây và những điều dịu dàng dành riêng cho FuongThenn.",
+  title: "A Birthday Film for FuongThenn ✿",
+  description: "Một bộ phim sinh nhật tương tác với hoa, mây, ánh sao và chiếc bánh 3D dành riêng cho FuongThenn.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
 
