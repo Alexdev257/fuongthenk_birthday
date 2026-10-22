@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 
 const SCENES = [
-  { id: "prologue", label: "Chiếc hộp", duration: 7 },
-  { id: "clockwork", label: "Nhịp đầu", duration: 7 },
-  { id: "garden", label: "Vườn giấy", duration: 9 },
-  { id: "melody", label: "Giai điệu", duration: 8 },
-  { id: "reveal", label: "Kéo rèm", duration: 8 },
-  { id: "gift", label: "Món quà", duration: 11 },
-  { id: "finale", label: "Lời chúc", duration: 12 },
+  { id: "prologue", label: "Lời mời", duration: 7 },
+  { id: "clockwork", label: "Đúng lúc", duration: 7 },
+  { id: "garden", label: "Khu vườn", duration: 9 },
+  { id: "melody", label: "Ánh nhạc", duration: 8 },
+  { id: "reveal", label: "Tên của bạn", duration: 8 },
+  { id: "gift", label: "Điều ước", duration: 11 },
+  { id: "finale", label: "Tấm thiệp", duration: 12 },
 ] as const;
 
 const TOTAL_DURATION = SCENES.reduce((total, scene) => total + scene.duration, 0);
@@ -91,6 +91,17 @@ function PortraitFrame({ src, className = "", caption }: { src: string; classNam
     <div className={`portrait-frame ${className}`} style={{ "--portrait": `url("${src}")` } as React.CSSProperties} role="img" aria-label="Một khoảnh khắc của FuongThenn">
       <i className="portrait-glass" />
       {caption && <span>{caption}</span>}
+    </div>
+  );
+}
+
+function OrbitalBloom({ className = "" }: { className?: string }) {
+  return (
+    <div className={`orbital-bloom ${className}`} aria-hidden="true">
+      <i className="bloom-halo bloom-halo-outer" /><i className="bloom-halo bloom-halo-inner" />
+      <div className="bloom-monogram"><span>F</span><small>ONE OF ONE</small></div>
+      <CrystalBloom className="bloom-crystal" />
+      <div className="bloom-gems">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ "--gem": index } as React.CSSProperties} />)}</div>
     </div>
   );
 }
@@ -294,7 +305,7 @@ export default function Home() {
       <div className="scene-stack">
         <SceneFrame active={sceneIndex === 0} className="prologue-scene">
           <div className="porcelain-grid" /><div className="prologue-orbit orbit-one" /><div className="prologue-orbit orbit-two" />
-          <div className="story-copy prologue-copy"><p>MỘT PHIÊN BẢN DUY NHẤT</p><h1>Có một chiếc hộp<br /><em>chỉ mở hôm nay.</em></h1><span>Bên trong là một giai điệu đã học cách gọi tên bạn.</span></div>
+          <div className="story-copy prologue-copy"><p>LỜI MỜI · THE BLUE CONSERVATORY</p><h1>Có một cánh cửa<br /><em>chỉ mở hôm nay.</em></h1><span>Bước thật khẽ nhé — khu vườn này đã chuẩn bị một điều đặc biệt cho bạn.</span></div>
           <MusicBox open className="hero-box" />
           <CrystalBloom className="prologue-crystal" />
           <Flower className="prologue-flower flower-a" /><Flower className="prologue-flower flower-b" delay={-1.4} />
@@ -303,34 +314,34 @@ export default function Home() {
 
         <SceneFrame active={sceneIndex === 1} className="clockwork-scene">
           <div className="clock-stars" aria-hidden="true">{stars.map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, width: star.size, height: star.size, animationDelay: `${star.delay}s` }} />)}</div>
-          <PortraitFrame src={MEMORY_PHOTOS.white} className="clock-portrait" caption="PORTRAIT NO. 01" />
+          <div className="clock-jewels" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ "--jewel": index } as React.CSSProperties} />)}</div>
           <div className="clock-dial" aria-hidden="true"><div className="dial-marks">{dialMarks.map((mark) => <i key={mark} style={{ "--mark": mark } as React.CSSProperties} />)}</div><div className="clock-hand hand-long" /><div className="clock-hand hand-short" /><div className="dial-center">✿</div><span>HÔM NAY</span></div>
-          <div className="story-copy clock-copy"><p>CHƯƠNG I · NHỊP ĐẦU TIÊN</p><h2>Thời gian dừng lại<br />một nhịp.</h2><span>Đủ lâu để cả thế giới nhớ rằng hôm nay là ngày của FuongThenn.</span></div>
+          <div className="story-copy clock-copy"><p>CHƯƠNG I · ĐÚNG KHOẢNH KHẮC</p><h2>Thời gian giữ lại<br />một nhịp.</h2><span>Để hôm nay không trôi qua như mọi ngày — vì hôm nay là ngày của FuongThenn.</span></div>
           <div className="clock-ring ring-one" /><div className="clock-ring ring-two" />
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 2} className="garden-scene">
-          <PortraitFrame src={MEMORY_PHOTOS.sea} className="garden-memory" caption="A BLUE DAY · A BEAUTIFUL SOUL" />
           <div className="paper-sun"><span /></div><div className="paper-hill hill-one" /><div className="paper-hill hill-two" /><div className="paper-hill hill-three" />
+          <div className="garden-dome" aria-hidden="true"><i /><b /><span>✦</span></div>
           <div className="garden-platform"><i /><b /></div>
           <div className="garden-flowers" aria-hidden="true">{Array.from({ length: 11 }, (_, index) => <Flower key={index} className={`garden-flower garden-flower-${index + 1}`} delay={index * -.31} />)}</div>
-          <div className="story-copy garden-copy"><p>CHƯƠNG II · KHU VƯỜN BẬT MỞ</p><h2>Hoa không nở theo mùa.<br /><em>Hoa nở theo nụ cười.</em></h2><span>Và hôm nay, cả khu vườn chọn nở vì bạn.</span></div>
+          <div className="story-copy garden-copy"><p>CHƯƠNG II · KHU VƯỜN PHA LÊ</p><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của bạn.</span></div>
           <span className="paper-bird bird-one">⌁</span><span className="paper-bird bird-two">⌁</span>
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 3} className="melody-scene">
           <div className="melody-stars" aria-hidden="true">{stars.map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
-          <div className="memory-gallery" aria-hidden="true"><PortraitFrame src={MEMORY_PHOTOS.noir} className="memory-card memory-card-one" /><PortraitFrame src={MEMORY_PHOTOS.studio} className="memory-card memory-card-two" /><PortraitFrame src={MEMORY_PHOTOS.soft} className="memory-card memory-card-three" /></div>
+          <div className="melody-disc" aria-hidden="true"><i /><i /><i /><b>F</b><span>♪</span></div>
           <svg className="music-staff" viewBox="0 0 900 390" fill="none" aria-hidden="true"><path d="M-20 110C185 0 302 232 492 122s282-16 435 66M-28 155C174 43 306 274 498 166s277-9 436 66M-35 200C169 88 311 318 504 211s273-4 437 66M-42 245C166 133 314 360 510 256s268 1 438 67" />{[[105,99],[236,184],[373,109],[520,203],[665,116],[792,235]].map(([x,y], index) => <g key={`${x}-${y}`} className={`staff-note note-${index + 1}`}><circle cx={x} cy={y} r="13" /><path d={`M${x + 12} ${y}v-70`} /></g>)}</svg>
           <div className="wish-constellation" aria-hidden="true"><span>BÌNH YÊN</span><span>RỰC RỠ</span><span>MAY MẮN</span><span>ĐƯỢC YÊU</span></div>
-          <div className="story-copy melody-copy"><p>CHƯƠNG III · GIAI ĐIỆU BIẾT NÓI</p><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Nghe thật kỹ nhé — tên bạn đang nằm giữa điệp khúc.</span></div>
+          <div className="story-copy melody-copy"><p>CHƯƠNG III · ÁNH SÁNG BIẾT HÁT</p><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Bình yên, rực rỡ, may mắn và được yêu — tất cả đang tìm đường đến bạn.</span></div>
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 4} className="reveal-scene">
           <div className="stage-light" /><div className="curtain curtain-left"><i /><i /><i /></div><div className="curtain curtain-right"><i /><i /><i /></div>
-          <PortraitFrame src={MEMORY_PHOTOS.white} className="reveal-portrait" caption="THE ONE & ONLY" />
+          <div className="reveal-halo" aria-hidden="true"><i /><b /><span>F</span></div>
           <PetalRain className="reveal-petals" />
-          <div className="reveal-title"><p>VÀ NHÂN VẬT CHÍNH LÀ</p><span className="reveal-kicker">một người thật đặc biệt</span><h2>Fuong<span>Thenn</span></h2><div><i /> one of one <i /></div></div>
+          <div className="reveal-title"><p>TẤT CẢ NHỮNG ĐIỀU ĐẸP ĐẼ ẤY</p><span className="reveal-kicker">đều viết thành một cái tên</span><h2>Fuong<span>Thenn</span></h2><div><i /> one of one <i /></div></div>
           <Sparkle className="reveal-sparkle sparkle-one" /><Sparkle className="reveal-sparkle sparkle-two" />
         </SceneFrame>
 
@@ -344,14 +355,24 @@ export default function Home() {
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 6} className="finale-scene">
-          <PortraitFrame src={MEMORY_PHOTOS.soft} className="finale-portrait" />
           <PetalRain className="finale-petals" /><div className="finale-sun" /><div className="finale-ribbon ribbon-left" /><div className="finale-ribbon ribbon-right" />
           <Flower className="finale-flower flower-left" /><Flower className="finale-flower flower-right" delay={-1.1} />
-          <div className="finale-ticket"><div className="ticket-number">NO. 01</div><p>THE BLUE MUSIC BOX PRESENTS</p><h2>Happy Birthday</h2><h3>FuongThenn!</h3><div className="ticket-rule"><i>✿</i></div><span>Chúc bạn một tuổi mới dịu dàng với chính mình,<br />can đảm với những điều mình yêu,<br />và luôn có thật nhiều lý do để mỉm cười.</span><strong>May your days bloom in blue.</strong><button type="button" onClick={beginFilm}>↻&nbsp;&nbsp; Mở hộp nhạc lần nữa</button></div>
+          <div className="finale-layout">
+            <div className="finale-gallery" aria-label="Những khoảnh khắc đáng yêu của FuongThenn">
+              <PortraitFrame src={MEMORY_PHOTOS.sea} className="memory-photo memory-photo-sea" caption="BLUE DAY" />
+              <PortraitFrame src={MEMORY_PHOTOS.noir} className="memory-photo memory-photo-noir" caption="LOVELY" />
+              <PortraitFrame src={MEMORY_PHOTOS.white} className="memory-photo memory-photo-white" caption="ONE OF ONE" />
+              <PortraitFrame src={MEMORY_PHOTOS.studio} className="memory-photo memory-photo-studio" caption="SHINE" />
+              <PortraitFrame src={MEMORY_PHOTOS.soft} className="memory-photo memory-photo-soft" caption="SMILE" />
+              <i className="memory-tape tape-one" /><i className="memory-tape tape-two" />
+              <span className="memory-sticker sticker-flower">✿</span><span className="memory-sticker sticker-heart">♡</span>
+            </div>
+            <div className="finale-ticket"><div className="ticket-number">FOR YOU · NO. 01</div><p>TẤM THIỆP CUỐI KHU VƯỜN</p><h2>Happy Birthday</h2><h3>FuongThenn!</h3><div className="ticket-rule"><i>✿</i></div><span>Chúc bạn một tuổi mới dịu dàng với chính mình,<br />can đảm với những điều mình yêu,<br />và luôn có thật nhiều lý do để mỉm cười.</span><strong>May your days bloom in blue.</strong><button type="button" onClick={beginFilm}>↻&nbsp;&nbsp; Xem lại thước phim</button></div>
+          </div>
         </SceneFrame>
       </div>
 
-      {!started && <div className="premiere-overlay"><PortraitFrame src={MEMORY_PHOTOS.sea} className="cover-portrait" /><div className="cover-film-shade" /><div className="cover-corners"><i /><i /><i /><i /></div><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>A BIRTHDAY FILM · ONE OF ONE</p><h1><small>For</small>FuongThenn</h1><div className="cover-divider"><i /> made with love <i /></div><span>Một thước phim nhỏ dành cho một người thật đặc biệt.</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Bắt đầu thước phim</span></button><small><b>BẬT ÂM THANH</b> · Xem ở chế độ toàn màn hình</small></div></div>}
+      {!started && <div className="premiere-overlay"><div className="cover-corners"><i /><i /><i /><i /></div><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><OrbitalBloom className="premiere-bloom" /><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>A PRIVATE BIRTHDAY FILM · ONE OF ONE</p><h1><small>The Blue Conservatory</small>FuongThenn</h1><div className="cover-divider"><i /> made with love <i /></div><span>Một khu vườn ánh sáng, hoa và điều ước đang chờ bạn phía sau cánh cửa.</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Mở cánh cửa</span></button><small><b>BẬT ÂM THANH</b> · Không cần cuộn</small></div></div>}
 
       <div className={`film-controls ${started ? "controls-visible" : ""}`}>
         <div className="chapter-track" aria-label="Chọn phân cảnh">{SCENES.map((scene, index) => <button type="button" key={scene.id} className={index === sceneIndex ? "active" : ""} onClick={() => jumpScene(index)} aria-label={`Đi đến cảnh ${scene.label}`}><i /><span>{String(index + 1).padStart(2, "0")}</span></button>)}</div>
