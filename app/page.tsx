@@ -294,7 +294,7 @@ export default function Home() {
           <div className="clock-stars" aria-hidden="true">{stars.map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, width: star.size, height: star.size, animationDelay: `${star.delay}s` }} />)}</div>
           <div className="clock-jewels" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ "--jewel": index } as React.CSSProperties} />)}</div>
           <div className="clock-dial" aria-hidden="true"><div className="dial-marks">{dialMarks.map((mark) => <i key={mark} style={{ "--mark": mark } as React.CSSProperties} />)}</div><div className="clock-hand hand-long" /><div className="clock-hand hand-short" /><div className="dial-center">✿</div><span>HÔM NAY</span></div>
-          <div className="story-copy clock-copy"><p>CHƯƠNG I · ĐÚNG KHOẢNH KHẮC</p><h2>Thời gian giữ lại<br />một nhịp.</h2><span>Để hôm nay không trôi qua như mọi ngày — vì hôm nay là ngày của FuongThenn.</span></div>
+          <div className="story-copy clock-copy"><h2>Thời gian giữ lại<br />một nhịp.</h2><span>Để hôm nay không trôi qua như mọi ngày — vì hôm nay là ngày của FuongThenn.</span></div>
           <div className="clock-ring ring-one" /><div className="clock-ring ring-two" />
         </SceneFrame>
 
@@ -303,7 +303,7 @@ export default function Home() {
           <div className="garden-dome" aria-hidden="true"><i /><b /><span>✦</span></div>
           <div className="garden-platform"><i /><b /></div>
           <BlueBouquet className="garden-bouquet" active={started && playing && sceneIndex === 2} loadModel={started && sceneIndex >= 1 && sceneIndex <= 2} />
-          <div className="story-copy garden-copy"><p>CHƯƠNG II · KHU VƯỜN PHA LÊ</p><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của bạn.</span></div>
+          <div className="story-copy garden-copy"><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của bạn.</span></div>
           <span className="paper-bird bird-one">⌁</span><span className="paper-bird bird-two">⌁</span>
         </SceneFrame>
 
@@ -312,7 +312,7 @@ export default function Home() {
           <div className="melody-disc" aria-hidden="true"><i /><i /><i /><b>F</b><span>♪</span></div>
           <svg className="music-staff" viewBox="0 0 900 390" fill="none" aria-hidden="true"><path d="M-20 110C185 0 302 232 492 122s282-16 435 66M-28 155C174 43 306 274 498 166s277-9 436 66M-35 200C169 88 311 318 504 211s273-4 437 66M-42 245C166 133 314 360 510 256s268 1 438 67" />{[[105,99],[236,184],[373,109],[520,203],[665,116],[792,235]].map(([x,y], index) => <g key={`${x}-${y}`} className={`staff-note note-${index + 1}`}><circle cx={x} cy={y} r="13" /><path d={`M${x + 12} ${y}v-70`} /></g>)}</svg>
           <div className="wish-constellation" aria-hidden="true"><span>BÌNH YÊN</span><span>RỰC RỠ</span><span>MAY MẮN</span><span>ĐƯỢC YÊU</span></div>
-          <div className="story-copy melody-copy"><p>CHƯƠNG III · ÁNH SÁNG BIẾT HÁT</p><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Bình yên, rực rỡ, may mắn và được yêu — tất cả đang tìm đường đến bạn.</span></div>
+          <div className="story-copy melody-copy"><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Bình yên, rực rỡ, may mắn và được yêu — tất cả đang tìm đường đến bạn.</span></div>
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 4} className="reveal-scene">
@@ -325,7 +325,7 @@ export default function Home() {
 
         <SceneFrame active={sceneIndex === 5} className={`gift-scene ${wishReleased ? "wish-released" : ""}`}>
           <div className="gift-stars" aria-hidden="true">{stars.slice(0, 22).map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
-          <div className="story-copy gift-copy"><p>CHƯƠNG IV · MÓN QUÀ CUỐI</p><h2>{wishReleased ? "Điều ước đã được cất vào giai điệu." : "Một vòng quay cho một điều ước."}</h2><span>{wishReleased ? "Từ giờ, mỗi lần nhớ lại, điều đẹp đẽ ấy sẽ gần bạn thêm một chút." : "Nhắm mắt một giây — phần còn lại cứ để chiếc hộp nhạc lo."}</span><div className="wish-beats"><i /><i /><i /></div></div>
+          <div className="story-copy gift-copy"><h2>{wishReleased ? "Điều ước đã được cất vào giai điệu." : "Một vòng quay cho một điều ước."}</h2><span>{wishReleased ? "Từ giờ, mỗi lần nhớ lại, điều đẹp đẽ ấy sẽ gần bạn thêm một chút." : "Nhắm mắt một giây — phần còn lại cứ để chiếc hộp nhạc lo."}</span><div className="wish-beats"><i /><i /><i /></div></div>
           <CakeModel active={sceneIndex === 5} shouldLoad={sceneIndex >= 4} />
           <CrystalBloom className="gift-crystal crystal-one" /><CrystalBloom className="gift-crystal crystal-two" />
           <div className={`wish-aura ${wishReleased ? "released" : ""}`}><i /><span /></div>

@@ -1,0 +1,138 @@
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-variable.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-italic-variable.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Keep the cinematic art direction, with readable Vietnamese at every size. */
+:root { --font-story: "Lora", Georgia, serif; --muted: #45657f; }
+.story-copy h1, .story-copy h2, .reveal-title h2, .reveal-kicker,
+.finale-ticket h2, .finale-ticket h3, .finale-ticket > span,
+.cover-card h1, .cover-card > span, .cover-divider,
+.story-copy > span { font-family: var(--font-story); }
+
+.story-copy h1, .story-copy h2 {
+  font-size: clamp(48px, 5.3vw, 80px);
+  font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+.story-copy h1 em, .story-copy h2 em { font-weight: 500; }
+.story-copy > span { max-width: 540px; margin-top: 20px; font-size: clamp(18px, 1.55vw, 23px); font-style: normal; font-weight: 400; line-height: 1.65; text-wrap: pretty; }
+.dark-scene .story-copy > span { color: #e0effa; }
+.story-copy > p, .reveal-title > p, .finale-ticket > p, .cover-card > p { font-size: 11px; line-height: 1.5; letter-spacing: .17em; }
+
+.cover-card h1 { font-weight: 500; line-height: 1.08; letter-spacing: -.055em; }
+.cover-card h1 small { margin-bottom: 14px; font-size: 10px; letter-spacing: .2em; }
+.cover-card > span { font-size: 17px; line-height: 1.65; font-style: normal; color: #e7f4fc; }
+.cover-divider { font-size: 14px; }
+.cover-card > button > span { font-size: 14px; }
+.cover-card > small { font-size: 11px; line-height: 1.5; }
+.reveal-title h2 { font-weight: 500; line-height: 1.16; letter-spacing: -.065em; }
+.reveal-kicker { font-size: 21px; line-height: 1.5; }
+.reveal-title > div { font-size: 16px; }
+.model-hint { font-size: 11px; }
+.wish-constellation span { font-size: 10px; letter-spacing: .12em; }
+
+.finale-ticket { padding: clamp(28px, 4vh, 44px) clamp(24px, 3vw, 48px); }
+.finale-ticket h2 { font-size: clamp(34px, 3.6vw, 54px); font-weight: 500; line-height: 1.18; }
+.finale-ticket h3 { margin: 5px 0 14px; font-size: clamp(48px, 5.8vw, 84px); font-weight: 500; line-height: 1.15; letter-spacing: -.06em; }
+.finale-ticket > span { color: #3b5872; font-size: clamp(16px, 1.25vw, 19px); line-height: 1.65; }
+.finale-ticket > strong { font-size: 11px; line-height: 1.5; letter-spacing: .11em; }
+.finale-ticket button { min-height: 44px; font-size: 12px; }
+.ticket-number { font-size: 9px; }
+
+@media (max-width: 760px) {
+  .story-copy h1, .story-copy h2 { font-size: clamp(33px, 9.1vw, 42px); line-height: 1.18; }
+  .story-copy > span { margin-top: 15px; max-width: 350px; font-size: 15px; line-height: 1.6; }
+  .story-copy > p, .reveal-title > p { font-size: 9px; }
+  .prologue-copy { top: max(68px, 12%); }
+  .garden-copy { top: 24%; }
+  .melody-copy { top: 11%; }
+  .melody-disc { top: 62%; }
+  .gift-copy { top: max(62px, 10%); }
+  .gift-copy h2 { font-size: clamp(30px, 8.3vw, 36px); }
+  .gift-copy > span { max-width: 345px; margin-top: 14px; font-size: 15px; line-height: 1.55; }
+  .model-stage { top: 43%; height: 49%; }
+  .model-hint { font-size: 10px; }
+  .wish-constellation span { font-size: 9px; }
+
+  .cover-card { padding: 20px 18px 18px; }
+  .cover-card > p { margin-bottom: 9px; font-size: 9px; letter-spacing: .14em; }
+  .cover-card h1 { font-size: clamp(45px, 13vw, 60px); line-height: 1.1; }
+  .cover-card h1 small { margin-bottom: 8px; font-size: 9px; }
+  .cover-divider { margin: 12px 0 9px; font-size: 12px; }
+  .cover-card > span { max-width: 350px; font-size: 14px; line-height: 1.55; }
+  .cover-card > button { min-height: 48px; margin-top: 14px; }
+  .cover-card > button > span { font-size: 14px; }
+  .cover-card > small { margin-top: 10px; font-size: 10px; }
+  .reveal-title h2 { font-size: clamp(46px, 14vw, 70px); }
+  .reveal-kicker { font-size: 17px; }
+  .reveal-title > div { font-size: 14px; }
+
+  .finale-gallery { height: 41%; }
+  .finale-ticket { top: 36%; padding: 24px 16px 18px; }
+  .finale-ticket > p { margin-bottom: 8px; font-size: 9px; }
+  .finale-ticket h2 { font-size: clamp(26px, 7.5vw, 34px); }
+  .finale-ticket h3 { margin: 4px 0 12px; font-size: clamp(38px, 11.2vw, 50px); }
+  .ticket-rule { margin-bottom: 11px; }
+  .finale-ticket > span { font-size: 14px; line-height: 1.6; }
+  .finale-ticket > strong { margin-top: 10px; font-size: 9px; }
+  .finale-ticket button { min-height: 44px; margin-top: 12px; font-size: 12px; }
+  .ticket-number { top: 9px; right: 12px; font-size: 7px; }
+}
+
+@media (max-width: 390px) and (orientation: portrait), (max-height: 740px) and (orientation: portrait) {
+  .story-copy h1, .story-copy h2 { font-size: clamp(30px, 8.6vw, 34px); }
+  .story-copy > span, .gift-copy > span { font-size: 14px; }
+  .cover-card { padding: 16px 14px 14px; }
+  .cover-card h1 { font-size: clamp(40px, 12.4vw, 48px); }
+  .cover-card > span { font-size: 13px; }
+  .cover-card > p { font-size: 8px; }
+  .cover-card > small { font-size: 9px; }
+  .cover-divider { margin-block: 9px 6px; }
+  .finale-gallery { height: 39%; }
+  .finale-ticket { top: 34%; padding: 20px 14px 14px; }
+  .finale-ticket h2 { font-size: 26px; }
+  .finale-ticket h3 { font-size: 38px; }
+  .finale-ticket > span { font-size: 13px; line-height: 1.55; }
+  .finale-ticket button { min-height: 40px; }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .story-copy h1, .story-copy h2 { font-size: clamp(27px, 4vw, 38px); }
+  .story-copy > span { font-size: 14px; margin-top: 12px; }
+  .prologue-copy { top: 46%; width: 44vw; }
+  .garden-scene .garden-copy { top: 48%; }
+  .melody-copy { top: 45%; width: 44vw; }
+  .gift-copy { top: 46%; width: 42vw; }
+  .gift-copy h2 { font-size: 29px; }
+  .gift-copy > span { font-size: 13px; }
+  .model-stage { top: 5%; height: 82%; }
+  .cover-card { padding: 14px 22px; }
+  .cover-card h1 { font-size: clamp(38px, 5.8vw, 55px); }
+  .cover-card > p, .cover-card h1 small { font-size: 8px; }
+  .cover-card > span { font-size: 12px; }
+  .cover-card > small { font-size: 9px; }
+  .cover-card > button { min-height: 42px; margin-top: 10px; }
+  .cover-divider { margin-block: 8px; }
+  .finale-gallery { height: 100%; }
+  .finale-ticket { top: auto; padding: 18px 16px 14px; }
+  .finale-ticket > p { font-size: 8px; }
+  .finale-ticket h2 { font-size: 26px; }
+  .finale-ticket h3 { margin-block: 3px 7px; font-size: 38px; }
+  .finale-ticket > span { font-size: 12px; line-height: 1.5; }
+  .finale-ticket > strong { margin-top: 7px; font-size: 8px; }
+  .finale-ticket button { min-height: 38px; margin-top: 8px; font-size: 11px; }
+}
