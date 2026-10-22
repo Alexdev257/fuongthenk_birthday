@@ -60,16 +60,24 @@ function SceneFrame({ active, children, className }: { active: boolean; children
   return <section className={`movie-scene ${className} ${active ? "is-active" : ""}`} aria-hidden={!active}>{children}</section>;
 }
 
-function CakeModel({ active }: { active: boolean }) {
+function CakeModel({ active, shouldLoad }: { active: boolean; shouldLoad: boolean }) {
   const ModelViewer = "model-viewer" as React.ElementType;
-  useEffect(() => { if (active && typeof window !== "undefined") void import("@google/model-viewer"); }, [active]);
+  const [modelState, setModelState] = useState<"loading" | "ready" | "error">("loading");
+
+  useEffect(() => {
+    if (!shouldLoad || typeof window === "undefined") return;
+    void import("@google/model-viewer").catch(() => setModelState("error"));
+  }, [shouldLoad]);
+
   return (
-    <div className={`model-stage ${active ? "model-live" : ""}`}>
+    <div className={`model-stage ${active ? "model-live" : ""} model-${modelState}`}>
       <div className="model-halo" />
-      <ModelViewer className="cake-model" src="/models/fuongthenn-birthday-cake.glb" poster="/models/fuongthenn-cake-preview.png" alt="Mô hình 3D bánh sinh nhật hoa xanh trắng dành cho FuongThenn" camera-orbit="28deg 73deg 2.8m" min-camera-orbit="auto 62deg 2.25m" max-camera-orbit="auto 82deg 3.6m" field-of-view="28deg" shadow-intensity="1.15" shadow-softness=".85" exposure="1.08" environment-image="neutral" auto-rotate rotation-per-second="12deg" interaction-prompt="none" disable-zoom reveal="auto">
-        <div slot="progress-bar" className="model-progress"><span /></div>
-      </ModelViewer>
+      {shouldLoad && <ModelViewer className="cake-model" src="/models/fuongthenn-birthday-cake.glb" poster="/models/fuongthenn-cake-preview.png" alt="Mô hình 3D bánh sinh nhật hoa xanh trắng dành cho FuongThenn" camera-orbit="28deg 73deg 2.8m" min-camera-orbit="auto 62deg 2.25m" max-camera-orbit="auto 82deg 3.6m" field-of-view="28deg" shadow-intensity="1.15" shadow-softness=".85" exposure="1.08" environment-image="neutral" loading="eager" auto-rotate rotation-per-second="12deg" interaction-prompt="none" disable-zoom reveal="auto" onLoad={() => setModelState("ready")} onError={() => setModelState("error")}>
+          <div slot="progress-bar" className="model-progress"><span /></div>
+        </ModelViewer>}
+      {modelState === "error" && <div className="model-fallback" role="img" aria-label="Bánh sinh nhật màu trắng xanh với hoa và nơ"><span>✦</span><p>Món quà 3D đang nghỉ một chút</p><small>Nhưng điều ước vẫn luôn ở đây ✿</small></div>}
       <div className="model-floor" /><span className="model-orbit orbit-one" /><span className="model-orbit orbit-two" />
+      <p className="model-hint">Chạm và kéo để ngắm chiếc bánh 3D</p>
     </div>
   );
 }
@@ -144,26 +152,43 @@ export default function Home() {
     if (!audioRef.current) audioRef.current = startAmbientAudio();
     return audioRef.current;
   }, []);
-  const beginFilm = () => {
+  const beginFilm = useCallback(() => {
     setStarted(true); setPlaying(true); setElapsed(0); elapsedRef.current = 0;
     const audio = ensureAudio();
     if (audio) audio.master.gain.setTargetAtTime(muted ? 0 : 0.16, audio.context.currentTime, 0.08);
-  };
-  const togglePlayback = () => {
+  }, [ensureAudio, muted]);
+  const togglePlayback = useCallback(() => {
     if (!started) return beginFilm();
-    if (elapsed >= TOTAL_DURATION) { setElapsed(0); elapsedRef.current = 0; setPlaying(true); void ensureAudio()?.context.resume(); return; }
+    if (elapsedRef.current >= TOTAL_DURATION) { setElapsed(0); elapsedRef.current = 0; setPlaying(true); void ensureAudio()?.context.resume(); return; }
     setPlaying((value) => { const next = !value; const audio = ensureAudio(); if (audio) void (next ? audio.context.resume() : audio.context.suspend()); return next; });
-  };
-  const toggleMuted = () => {
+  }, [beginFilm, ensureAudio, started]);
+  const toggleMuted = useCallback(() => {
     setMuted((value) => { const next = !value; const audio = ensureAudio(); if (audio) audio.master.gain.setTargetAtTime(next ? 0 : 0.16, audio.context.currentTime, 0.08); return next; });
-  };
-  const seek = (value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); };
-  const jumpScene = (index: number) => seek(sceneStarts[index] + 0.05);
-  const toggleFullscreen = () => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); };
+  }, [ensureAudio]);
+  const seek = useCallback((value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); }, []);
+  const jumpScene = useCallback((index: number) => seek(sceneStarts[index] + 0.05), [seek]);
+  const toggleFullscreen = useCallback(() => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) return;
+      if (event.code === "Space") { event.preventDefault(); togglePlayback(); }
+      if (event.key === "ArrowRight") seek(elapsedRef.current + 5);
+      if (event.key === "ArrowLeft") seek(elapsedRef.current - 5);
+      if (event.key.toLowerCase() === "m") toggleMuted();
+      if (event.key.toLowerCase() === "f") toggleFullscreen();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [seek, toggleFullscreen, toggleMuted, togglePlayback]);
 
   return (
     <main className={`film-app scene-${SCENES[sceneIndex].id} ${started ? "film-started" : ""}`}>
       <div className="film-grain" aria-hidden="true" />
+      <div className="film-vignette" aria-hidden="true" />
+      <div className="film-progress-edge" aria-hidden="true"><i style={{ width: `${(elapsed / TOTAL_DURATION) * 100}%` }} /></div>
+      <div className="film-frame" aria-hidden="true"><i /><i /><i /><i /></div>
+      <p className="sr-only" aria-live="polite">Cảnh {sceneIndex + 1}: {SCENES[sceneIndex].label}</p>
       <header className="film-header">
         <div className="film-brand"><span>✿</span><p>FOR FUONGTHENN<small>AN INTERACTIVE BIRTHDAY FILM</small></p></div>
         <div className="film-chapter"><span>{String(sceneIndex + 1).padStart(2, "0")}</span><p>{SCENES[sceneIndex].label}</p></div>
@@ -206,7 +231,7 @@ export default function Home() {
         <SceneFrame active={sceneIndex === 5} className={`cake-scene ${wishReleased ? "wish-released" : ""}`}>
           <div className="cake-stars" aria-hidden="true">{stars.slice(0, 20).map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
           <div className="cake-copy"><p>CHƯƠNG IV · ĐIỀU ƯỚC CUỐI CÙNG</p><h2>{wishReleased ? "Điều ước đã bay đến những vì sao." : "Nhắm mắt và ước một điều thật đẹp."}</h2><span>{wishReleased ? "Mong điều ấy sớm trở thành sự thật, FuongThenn nhé." : "Một ngọn nến đang chờ bạn…"}</span><div className="wish-countdown"><i /><i /><i /></div></div>
-          <CakeModel active={sceneIndex === 5} /><div className={`magic-flame ${wishReleased ? "flame-out" : ""}`}><i /><span /></div>
+          <CakeModel active={sceneIndex === 5} shouldLoad={sceneIndex >= 4} /><div className={`magic-flame ${wishReleased ? "flame-out" : ""}`}><i /><span /></div>
           {wishReleased && <div className="wish-burst" aria-hidden="true">{Array.from({ length: 32 }, (_, index) => <i key={index} style={{ "--i": index } as React.CSSProperties} />)}</div>}
         </SceneFrame>
 
@@ -218,7 +243,7 @@ export default function Home() {
         </SceneFrame>
       </div>
 
-      {!started && <div className="premiere-overlay"><div className="premiere-orbit orbit-a" /><div className="premiere-orbit orbit-b" /><div className="premiere-mark">✿</div><p>MỘT BỘ PHIM NHỎ DÀNH RIÊNG CHO</p><h1>FuongThenn</h1><span>01:01 · Bật âm thanh để cảm nhận trọn vẹn</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i> Bắt đầu câu chuyện</button><small>Trải nghiệm toàn màn hình · Không cần cuộn</small></div>}
+      {!started && <div className="premiere-overlay"><div className="premiere-orbit orbit-a" /><div className="premiere-orbit orbit-b" /><div className="premiere-bloom bloom-left"><Flower /></div><div className="premiere-bloom bloom-right"><Flower delay={-1.2} /></div><div className="premiere-mark">✿</div><p>MỘT BỘ PHIM NHỎ DÀNH RIÊNG CHO</p><h1>FuongThenn</h1><span>01:01 · Hoa, ánh sao và một món quà 3D</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i> Bắt đầu câu chuyện</button><small><b>ÂM THANH BẬT</b> · Chạm để xem · Không cần cuộn</small></div>}
 
       <div className={`film-controls ${started ? "controls-visible" : ""}`}>
         <div className="chapter-dots" aria-label="Chọn phân cảnh">{SCENES.map((scene, index) => <button type="button" key={scene.id} className={index === sceneIndex ? "active" : ""} onClick={() => jumpScene(index)} aria-label={`Đi đến cảnh ${scene.label}`}><i /><span>{scene.label}</span></button>)}</div>
