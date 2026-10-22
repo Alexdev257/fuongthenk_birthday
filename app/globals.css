@@ -15,7 +15,7 @@
 @media (max-width: 760px) {
   .garden-bouquet { bottom: 6%; width: min(100vw, 440px); height: 57%; }
   .finale-bouquet { right: -4%; bottom: 1%; width: 37vw; height: 27%; opacity: .92; transform: rotate(-24deg); }
-  .finale-mascot { left: max(12px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); width: min(36vw, 155px); height: 23%; }
+  .finale-mascot { left: max(0px, env(safe-area-inset-left)); bottom: max(0px, env(safe-area-inset-bottom)); width: min(36vw, 158px); height: 30%; }
 }
 @media (orientation: landscape) and (max-height: 600px) {
   .garden-bouquet { left: 76%; bottom: 0; width: 40vw; height: 87%; }
