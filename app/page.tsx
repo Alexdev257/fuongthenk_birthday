@@ -29,6 +29,14 @@ const stars = Array.from({ length: 34 }, (_, index) => ({
   size: 1 + (index % 3),
 }));
 const dialMarks = Array.from({ length: 36 }, (_, index) => index);
+const luxuryParticles = Array.from({ length: 18 }, (_, index) => ({
+  left: (index * 47 + 9) % 96,
+  top: (index * 29 + 13) % 88,
+  depth: 40 + (index % 6) * 34,
+  delay: -(index % 9) * 0.72,
+  duration: 6.5 + (index % 5) * 1.15,
+  size: 3 + (index % 4) * 2,
+}));
 
 function formatTime(value: number) {
   const seconds = Math.max(0, Math.floor(value));
@@ -52,6 +60,25 @@ function Sparkle({ className = "" }: { className?: string }) {
   return <svg className={`sparkle ${className}`} viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1c0 12.4-6.6 19-19 19 12.4 0 19 6.6 19 19 0-12.4 6.6-19 19-19-12.4 0-19-6.6-19-19Z" fill="currentColor" /></svg>;
 }
 
+function CrystalBloom({ className = "" }: { className?: string }) {
+  return (
+    <div className={`crystal-bloom ${className}`} aria-hidden="true">
+      <div className="crystal-stem"><i /><i /></div>
+      <div className="crystal-blossom">{Array.from({ length: 6 }, (_, index) => <i key={index} style={{ "--petal": index } as React.CSSProperties} />)}<b /></div>
+    </div>
+  );
+}
+
+function CinematicDepth() {
+  return (
+    <div className="luxury-depth" aria-hidden="true">
+      <div className="depth-aurora aurora-one" /><div className="depth-aurora aurora-two" />
+      <div className="depth-orbit orbit-near"><i /><b /></div><div className="depth-orbit orbit-far"><i /></div>
+      <div className="depth-particles">{luxuryParticles.map((particle, index) => <i key={index} style={{ left: `${particle.left}%`, top: `${particle.top}%`, width: particle.size, height: particle.size, animationDelay: `${particle.delay}s`, animationDuration: `${particle.duration}s`, "--depth": `${particle.depth}px` } as React.CSSProperties} />)}</div>
+    </div>
+  );
+}
+
 function PlayIcon({ playing }: { playing: boolean }) {
   return playing ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12M16 6v12" /></svg> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z" /></svg>;
 }
@@ -72,11 +99,13 @@ function MusicBox({ open = false, className = "" }: { open?: boolean; className?
   return (
     <div className={`music-box ${open ? "box-open" : ""} ${className}`} aria-hidden="true">
       <div className="box-aura" />
+      <div className="box-crown"><i /><i /><i /></div>
       <div className="box-lid"><div className="lid-inlay"><span>F</span><i>✿</i></div></div>
       <div className="box-stage"><i /><b /><span>one of one</span></div>
       <div className="box-body"><div className="box-drawer"><span /></div><i className="body-line" /></div>
       <div className="box-feet"><i /><i /></div>
       <div className="winding-key"><i /><b /></div>
+      <div className="box-plinth"><i /><b /></div>
     </div>
   );
 }
@@ -96,8 +125,10 @@ function CakeModel({ active, shouldLoad }: { active: boolean; shouldLoad: boolea
 
   return (
     <div className={`model-stage ${active ? "model-live" : ""} model-${modelState}`}>
-      <div className="model-spotlight" /><div className="model-arch" /><div className="model-turntable"><i /></div>
-      {shouldLoad && <ModelViewer className="cake-model" src="/models/fuongthenn-birthday-cake.glb" poster="/models/fuongthenn-cake-preview.png" alt="Mô hình 3D bánh sinh nhật trắng xanh có nơ và hoa dành cho FuongThenn" camera-orbit="24deg 72deg 2.75m" min-camera-orbit="auto 60deg 2.25m" max-camera-orbit="auto 84deg 3.5m" field-of-view="27deg" shadow-intensity="1.2" shadow-softness=".9" exposure="1.08" environment-image="neutral" loading="eager" camera-controls auto-rotate rotation-per-second="10deg" interaction-prompt="none" disable-zoom reveal="auto" onLoad={() => setModelState("ready")} onError={() => setModelState("error")}>
+      <div className="model-spotlight" /><div className="model-arch"><i /><b /></div>
+      <div className="model-orbit model-orbit-one"><i /></div><div className="model-orbit model-orbit-two"><i /></div>
+      <div className="model-crown"><i /><i /><i /><i /><i /></div><div className="model-turntable"><i /><b /></div>
+      {shouldLoad && <ModelViewer className="cake-model" src="/models/fuongthenn-birthday-cake.glb" poster="/models/fuongthenn-cake-preview.png" alt="Mô hình 3D bánh sinh nhật trắng xanh có nơ và hoa dành cho FuongThenn" camera-orbit="24deg 72deg 4.05m" min-camera-orbit="auto 60deg 3.2m" max-camera-orbit="auto 84deg 5.2m" camera-target="0m 0.06m 0m" field-of-view="30deg" shadow-intensity="1.35" shadow-softness=".82" exposure="1.12" environment-image="neutral" loading="eager" camera-controls auto-rotate rotation-per-second="12deg" interpolation-decay="120" interaction-prompt="none" disable-zoom reveal="auto" onLoad={() => setModelState("ready")} onError={() => setModelState("error")}>
         <div slot="progress-bar" className="model-progress"><span /></div>
       </ModelViewer>}
       {modelState === "error" && <div className="model-fallback" role="img" aria-label="Biểu tượng chiếc bánh sinh nhật"><strong>✿</strong><p>Món quà vẫn đang ở đây</p><small>Hãy giữ điều ước thật gần nhé</small></div>}
@@ -153,6 +184,7 @@ export default function Home() {
   const elapsedRef = useRef(0);
   const lastFrameRef = useRef<number | null>(null);
   const audioRef = useRef<ReturnType<typeof startMusicBoxAudio>>(null);
+  const filmRef = useRef<HTMLElement>(null);
 
   const sceneIndex = useMemo(() => {
     const index = SCENES.findIndex((scene, itemIndex) => elapsed < sceneStarts[itemIndex] + scene.duration);
@@ -200,6 +232,21 @@ export default function Home() {
   const seek = useCallback((value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); }, []);
   const jumpScene = useCallback((index: number) => seek(sceneStarts[index] + 0.05), [seek]);
   const toggleFullscreen = useCallback(() => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); }, []);
+  const moveCamera = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const x = event.clientX / window.innerWidth - 0.5;
+    const y = event.clientY / window.innerHeight - 0.5;
+    event.currentTarget.style.setProperty("--tilt-x", `${y * -2.4}deg`);
+    event.currentTarget.style.setProperty("--tilt-y", `${x * 3.2}deg`);
+    event.currentTarget.style.setProperty("--drift-x", `${x * -13}px`);
+    event.currentTarget.style.setProperty("--drift-y", `${y * -9}px`);
+  }, []);
+  const resetCamera = useCallback(() => {
+    filmRef.current?.style.setProperty("--tilt-x", "0deg");
+    filmRef.current?.style.setProperty("--tilt-y", "0deg");
+    filmRef.current?.style.setProperty("--drift-x", "0px");
+    filmRef.current?.style.setProperty("--drift-y", "0px");
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -217,8 +264,9 @@ export default function Home() {
   const darkScene = ["clockwork", "melody", "reveal", "gift"].includes(SCENES[sceneIndex].id);
 
   return (
-    <main className={`film-app scene-${SCENES[sceneIndex].id} ${darkScene ? "dark-scene" : ""} ${started ? "film-started" : ""}`}>
+    <main ref={filmRef} onPointerMove={moveCamera} onPointerLeave={resetCamera} className={`film-app scene-${SCENES[sceneIndex].id} ${darkScene ? "dark-scene" : ""} ${started ? "film-started" : ""}`}>
       <div className="film-texture" aria-hidden="true" /><div className="film-vignette" aria-hidden="true" />
+      <CinematicDepth />
       <div className="edge-progress" aria-hidden="true"><i style={{ width: `${(elapsed / TOTAL_DURATION) * 100}%` }} /></div>
       <p className="sr-only" aria-live="polite">Cảnh {sceneIndex + 1}: {SCENES[sceneIndex].label}</p>
 
@@ -232,6 +280,7 @@ export default function Home() {
           <div className="porcelain-grid" /><div className="prologue-orbit orbit-one" /><div className="prologue-orbit orbit-two" />
           <div className="story-copy prologue-copy"><p>MỘT PHIÊN BẢN DUY NHẤT</p><h1>Có một chiếc hộp<br /><em>chỉ mở hôm nay.</em></h1><span>Bên trong là một giai điệu đã học cách gọi tên bạn.</span></div>
           <MusicBox open className="hero-box" />
+          <CrystalBloom className="prologue-crystal" />
           <Flower className="prologue-flower flower-a" /><Flower className="prologue-flower flower-b" delay={-1.4} />
           <Sparkle className="prologue-sparkle sparkle-a" /><Sparkle className="prologue-sparkle sparkle-b" />
         </SceneFrame>
@@ -269,6 +318,7 @@ export default function Home() {
           <div className="gift-stars" aria-hidden="true">{stars.slice(0, 22).map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
           <div className="story-copy gift-copy"><p>CHƯƠNG IV · MÓN QUÀ CUỐI</p><h2>{wishReleased ? "Điều ước đã được cất vào giai điệu." : "Một vòng quay cho một điều ước."}</h2><span>{wishReleased ? "Từ giờ, mỗi lần nhớ lại, điều đẹp đẽ ấy sẽ gần bạn thêm một chút." : "Nhắm mắt một giây — phần còn lại cứ để chiếc hộp nhạc lo."}</span><div className="wish-beats"><i /><i /><i /></div></div>
           <CakeModel active={sceneIndex === 5} shouldLoad={sceneIndex >= 4} />
+          <CrystalBloom className="gift-crystal crystal-one" /><CrystalBloom className="gift-crystal crystal-two" />
           <div className={`wish-aura ${wishReleased ? "released" : ""}`}><i /><span /></div>
           {wishReleased && <div className="wish-burst" aria-hidden="true">{Array.from({ length: 34 }, (_, index) => <i key={index} style={{ "--i": index } as React.CSSProperties} />)}</div>}
         </SceneFrame>
@@ -280,7 +330,7 @@ export default function Home() {
         </SceneFrame>
       </div>
 
-      {!started && <div className="premiere-overlay"><div className="cover-rays" /><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>AN ORIGINAL BIRTHDAY MUSIC BOX</p><h1><small>For</small>FuongThenn</h1><div className="cover-divider"><i /> one of one <i /></div><span>62 giây · Hoa sứ · Giai điệu · Món quà 3D</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Vặn khóa &amp; mở hộp</span></button><small><b>ÂM THANH BẬT</b> · Không cần cuộn</small></div></div>}
+      {!started && <div className="premiere-overlay"><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>AN ORIGINAL BIRTHDAY MUSIC BOX</p><h1><small>For</small>FuongThenn</h1><div className="cover-divider"><i /> one of one <i /></div><span>62 giây · Hoa sứ · Giai điệu · Món quà 3D</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Vặn khóa &amp; mở hộp</span></button><small><b>ÂM THANH BẬT</b> · Không cần cuộn</small></div></div>}
 
       <div className={`film-controls ${started ? "controls-visible" : ""}`}>
         <div className="chapter-track" aria-label="Chọn phân cảnh">{SCENES.map((scene, index) => <button type="button" key={scene.id} className={index === sceneIndex ? "active" : ""} onClick={() => jumpScene(index)} aria-label={`Đi đến cảnh ${scene.label}`}><i /><span>{String(index + 1).padStart(2, "0")}</span></button>)}</div>
