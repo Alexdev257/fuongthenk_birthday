@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
+import BlueBouquet from "./blue-bouquet";
 
 const SCENES = [
   { id: "prologue", label: "Lời mời", duration: 3.5 },
@@ -405,7 +406,7 @@ export default function Home() {
           <div className="paper-sun"><span /></div><div className="paper-hill hill-one" /><div className="paper-hill hill-two" /><div className="paper-hill hill-three" />
           <div className="garden-dome" aria-hidden="true"><i /><b /><span>✦</span></div>
           <div className="garden-platform"><i /><b /></div>
-          <div className="garden-flowers" aria-hidden="true">{Array.from({ length: 11 }, (_, index) => <Flower key={index} className={`garden-flower garden-flower-${index + 1}`} delay={index * -.31} />)}</div>
+          <BlueBouquet className="garden-bouquet" active={started && playing && sceneIndex === 2} loadModel={started && sceneIndex >= 1 && sceneIndex <= 2} />
           <div className="story-copy garden-copy"><p>CHƯƠNG II · KHU VƯỜN PHA LÊ</p><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của bạn.</span></div>
           <span className="paper-bird bird-one">⌁</span><span className="paper-bird bird-two">⌁</span>
         </SceneFrame>
@@ -438,6 +439,7 @@ export default function Home() {
         <SceneFrame active={sceneIndex === 6} className="finale-scene">
           <PetalRain className="finale-petals" /><div className="finale-sun" /><div className="finale-ribbon ribbon-left" /><div className="finale-ribbon ribbon-right" />
           <Flower className="finale-flower flower-left" /><Flower className="finale-flower flower-right" delay={-1.1} />
+          <BlueBouquet className="finale-bouquet" active={started && sceneIndex === 6} />
           <div className="finale-layout">
             <div className="finale-gallery" aria-label="Những khoảnh khắc đáng yêu của FuongThenn">
               <PortraitFrame src={MEMORY_PHOTOS.sea} className="memory-photo memory-photo-sea" caption="BLUE DAY" />
