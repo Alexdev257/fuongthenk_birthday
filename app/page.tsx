@@ -45,11 +45,6 @@ const luxuryParticles = Array.from({ length: 18 }, (_, index) => ({
   size: 3 + (index % 4) * 2,
 }));
 
-function formatTime(value: number) {
-  const seconds = Math.max(0, Math.floor(value));
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-}
-
 function Flower({ className = "", delay = 0 }: { className?: string; delay?: number }) {
   return (
     <svg className={`flower ${className}`} style={{ "--delay": `${delay}s` } as React.CSSProperties} viewBox="0 0 120 188" fill="none" aria-hidden="true">
@@ -110,14 +105,6 @@ function PlayIcon({ playing }: { playing: boolean }) {
   return playing ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12M16 6v12" /></svg> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z" /></svg>;
 }
 
-function VolumeIcon({ muted }: { muted: boolean }) {
-  return muted ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 7 9H3v6h4l4 4V5Zm4 6 6 6m0-6-6 6" /></svg> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 7 9H3v6h4l4 4V5Zm4.5 4a4 4 0 0 1 0 6m2.5-8.5a8 8 0 0 1 0 11" /></svg>;
-}
-
-function FullscreenIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>;
-}
-
 function SceneFrame({ active, children, className }: { active: boolean; children: React.ReactNode; className: string }) {
   return <section className={`movie-scene ${className} ${active ? "is-active" : ""}`} aria-hidden={!active}>{children}</section>;
 }
@@ -164,42 +151,120 @@ function CakeModel({ active, shouldLoad }: { active: boolean; shouldLoad: boolea
   );
 }
 
-function startMusicBoxAudio() {
+const BIRTHDAY_MUSIC_VOLUME = 0.12;
+
+function startBirthdayMusic() {
   const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioCtx) return null;
   const context = new AudioCtx();
   const master = context.createGain();
   const filter = context.createBiquadFilter();
-  master.gain.value = 0.15;
+  const compressor = context.createDynamicsCompressor();
+  const dry = context.createGain();
+  const reverb = context.createConvolver();
+  const wet = context.createGain();
+  const impulse = context.createBuffer(2, Math.floor(context.sampleRate * 1.8), context.sampleRate);
+
+  for (let channel = 0; channel < impulse.numberOfChannels; channel += 1) {
+    const data = impulse.getChannelData(channel);
+    for (let index = 0; index < data.length; index += 1) {
+      const decay = Math.pow(1 - index / data.length, 2.8);
+      data[index] = (Math.random() * 2 - 1) * decay;
+    }
+  }
+
+  master.gain.value = BIRTHDAY_MUSIC_VOLUME;
   filter.type = "lowpass";
-  filter.frequency.value = 2600;
-  master.connect(filter).connect(context.destination);
-  const melody = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 880, 783.99, 659.25, 523.25, 587.33, 659.25];
-  let cursor = 0;
-  const playNote = () => {
-    const now = context.currentTime;
-    const oscillator = context.createOscillator();
-    const shimmer = context.createOscillator();
-    const gain = context.createGain();
-    const shimmerGain = context.createGain();
-    oscillator.type = "sine";
-    shimmer.type = "triangle";
-    oscillator.frequency.value = melody[cursor % melody.length];
-    shimmer.frequency.value = oscillator.frequency.value * 2;
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.052, now + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.05);
-    shimmerGain.gain.setValueAtTime(0.0001, now);
-    shimmerGain.gain.exponentialRampToValueAtTime(0.012, now + 0.018);
-    shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
-    oscillator.connect(gain).connect(master);
-    shimmer.connect(shimmerGain).connect(master);
-    oscillator.start(now); shimmer.start(now);
-    oscillator.stop(now + 1.08); shimmer.stop(now + .58);
-    cursor += 1;
+  filter.frequency.value = 5200;
+  compressor.threshold.value = -22;
+  compressor.knee.value = 18;
+  compressor.ratio.value = 3;
+  compressor.attack.value = 0.012;
+  compressor.release.value = 0.28;
+  dry.gain.value = 0.88;
+  wet.gain.value = 0.13;
+  reverb.buffer = impulse;
+  dry.connect(master);
+  reverb.connect(wet).connect(master);
+  master.connect(filter).connect(compressor).connect(context.destination);
+
+  const beat = 0.44;
+  const melody = [
+    { midi: 67, beats: 0.5, chord: [48, 55, 60] }, { midi: 67, beats: 0.5 }, { midi: 69, beats: 1 }, { midi: 67, beats: 1 }, { midi: 72, beats: 1 }, { midi: 71, beats: 2 },
+    { midi: 67, beats: 0.5, chord: [43, 50, 55] }, { midi: 67, beats: 0.5 }, { midi: 69, beats: 1 }, { midi: 67, beats: 1 }, { midi: 74, beats: 1 }, { midi: 72, beats: 2 },
+    { midi: 67, beats: 0.5, chord: [48, 55, 60] }, { midi: 67, beats: 0.5 }, { midi: 79, beats: 1 }, { midi: 76, beats: 1 }, { midi: 72, beats: 1 }, { midi: 71, beats: 1 }, { midi: 69, beats: 2 },
+    { midi: 77, beats: 0.5, chord: [53, 60, 65] }, { midi: 77, beats: 0.5 }, { midi: 76, beats: 1 }, { midi: 72, beats: 1 }, { midi: 74, beats: 1, chord: [43, 50, 55] }, { midi: 72, beats: 2, chord: [48, 55, 60] },
+  ];
+  const midiToFrequency = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
+
+  const connectWithSpace = (node: AudioNode) => {
+    node.connect(dry);
+    node.connect(reverb);
   };
-  playNote();
-  const timer = window.setInterval(playNote, 610);
+
+  const scheduleBell = (midi: number, start: number, duration: number, accented: boolean) => {
+    const frequency = midiToFrequency(midi);
+    const body = context.createOscillator();
+    const shimmer = context.createOscillator();
+    const bodyGain = context.createGain();
+    const shimmerGain = context.createGain();
+    body.type = "sine";
+    shimmer.type = "sine";
+    body.frequency.setValueAtTime(frequency, start);
+    shimmer.frequency.setValueAtTime(frequency * 2.01, start);
+    body.detune.setValueAtTime(-2, start);
+    bodyGain.gain.setValueAtTime(0.0001, start);
+    bodyGain.gain.exponentialRampToValueAtTime(accented ? 0.105 : 0.078, start + 0.018);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, start + Math.max(0.7, duration + 0.62));
+    shimmerGain.gain.setValueAtTime(0.0001, start);
+    shimmerGain.gain.exponentialRampToValueAtTime(accented ? 0.026 : 0.018, start + 0.012);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.48);
+    body.connect(bodyGain);
+    shimmer.connect(shimmerGain);
+    connectWithSpace(bodyGain);
+    connectWithSpace(shimmerGain);
+    body.start(start);
+    shimmer.start(start);
+    body.stop(start + Math.max(0.75, duration + 0.68));
+    shimmer.stop(start + 0.52);
+  };
+
+  const schedulePad = (midis: number[], start: number, duration: number) => {
+    midis.forEach((midi, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = index === 0 ? "sine" : "triangle";
+      oscillator.frequency.setValueAtTime(midiToFrequency(midi), start);
+      oscillator.detune.setValueAtTime(index * 2 - 2, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.017 : 0.009, start + 0.34);
+      gain.gain.setValueAtTime(index === 0 ? 0.017 : 0.009, start + Math.max(0.36, duration - 0.48));
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      oscillator.connect(gain);
+      connectWithSpace(gain);
+      oscillator.start(start);
+      oscillator.stop(start + duration + 0.04);
+    });
+  };
+
+  let cursor = 0;
+  let nextNoteTime = context.currentTime + 0.08;
+  const scheduleAhead = () => {
+    while (nextNoteTime < context.currentTime + 0.32) {
+      const note = melody[cursor];
+      const duration = note.beats * beat;
+      scheduleBell(note.midi, nextNoteTime, duration, Boolean(note.chord));
+      if (note.chord) schedulePad(note.chord, nextNoteTime, Math.max(duration, beat * 5.7));
+      nextNoteTime += duration;
+      cursor += 1;
+      if (cursor === melody.length) {
+        cursor = 0;
+        nextNoteTime += beat * 1.6;
+      }
+    }
+  };
+  scheduleAhead();
+  const timer = window.setInterval(scheduleAhead, 90);
   return { context, master, timer };
 }
 
@@ -210,7 +275,7 @@ export default function Home() {
   const [elapsed, setElapsed] = useState(0);
   const elapsedRef = useRef(0);
   const lastFrameRef = useRef<number | null>(null);
-  const audioRef = useRef<ReturnType<typeof startMusicBoxAudio>>(null);
+  const audioRef = useRef<ReturnType<typeof startBirthdayMusic>>(null);
   const filmRef = useRef<HTMLElement>(null);
 
   const sceneIndex = useMemo(() => {
@@ -237,27 +302,39 @@ export default function Home() {
     frame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frame);
   }, [playing, started]);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !started) return;
+    void (playing ? audio.context.resume() : audio.context.suspend());
+  }, [playing, started]);
   useEffect(() => () => { if (audioRef.current) { window.clearInterval(audioRef.current.timer); void audioRef.current.context.close(); } }, []);
 
   const ensureAudio = useCallback(() => {
-    if (!audioRef.current) audioRef.current = startMusicBoxAudio();
+    if (!audioRef.current) audioRef.current = startBirthdayMusic();
     return audioRef.current;
   }, []);
   const beginFilm = useCallback(() => {
     setStarted(true); setPlaying(true); setElapsed(0); elapsedRef.current = 0;
-    const audio = ensureAudio();
-    if (audio) audio.master.gain.setTargetAtTime(muted ? 0 : 0.15, audio.context.currentTime, 0.07);
-  }, [ensureAudio, muted]);
+    if (audioRef.current) {
+      window.clearInterval(audioRef.current.timer);
+      void audioRef.current.context.close();
+    }
+    const audio = startBirthdayMusic();
+    audioRef.current = audio;
+    if (audio) {
+      audio.master.gain.setTargetAtTime(muted ? 0 : BIRTHDAY_MUSIC_VOLUME, audio.context.currentTime, 0.07);
+      void audio.context.resume();
+    }
+  }, [muted]);
   const togglePlayback = useCallback(() => {
     if (!started) return beginFilm();
     if (elapsedRef.current >= TOTAL_DURATION) { setElapsed(0); elapsedRef.current = 0; setPlaying(true); void ensureAudio()?.context.resume(); return; }
     setPlaying((value) => { const next = !value; const audio = ensureAudio(); if (audio) void (next ? audio.context.resume() : audio.context.suspend()); return next; });
   }, [beginFilm, ensureAudio, started]);
   const toggleMuted = useCallback(() => {
-    setMuted((value) => { const next = !value; const audio = ensureAudio(); if (audio) audio.master.gain.setTargetAtTime(next ? 0 : 0.15, audio.context.currentTime, 0.07); return next; });
+    setMuted((value) => { const next = !value; const audio = ensureAudio(); if (audio) audio.master.gain.setTargetAtTime(next ? 0 : BIRTHDAY_MUSIC_VOLUME, audio.context.currentTime, 0.07); return next; });
   }, [ensureAudio]);
   const seek = useCallback((value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); }, []);
-  const jumpScene = useCallback((index: number) => seek(sceneStarts[index] + 0.05), [seek]);
   const toggleFullscreen = useCallback(() => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); }, []);
   const moveCamera = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
@@ -296,11 +373,6 @@ export default function Home() {
       <CinematicDepth />
       <div className="edge-progress" aria-hidden="true"><i style={{ width: `${(elapsed / TOTAL_DURATION) * 100}%` }} /></div>
       <p className="sr-only" aria-live="polite">Cảnh {sceneIndex + 1}: {SCENES[sceneIndex].label}</p>
-
-      <header className="film-header">
-        <div className="film-signature"><span>F</span><p>THE BLUE MUSIC BOX<small>ONE OF ONE · FOR FUONGTHENN</small></p></div>
-        <div className="chapter-chip"><span>{String(sceneIndex + 1).padStart(2, "0")}</span><p>{SCENES[sceneIndex].label}</p></div>
-      </header>
 
       <div className="scene-stack">
         <SceneFrame active={sceneIndex === 0} className="prologue-scene">
@@ -373,11 +445,6 @@ export default function Home() {
       </div>
 
       {!started && <div className="premiere-overlay"><div className="cover-corners"><i /><i /><i /><i /></div><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><OrbitalBloom className="premiere-bloom" /><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>A PRIVATE BIRTHDAY FILM · ONE OF ONE</p><h1><small>The Blue Conservatory</small>FuongThenn</h1><div className="cover-divider"><i /> made with love <i /></div><span>Một khu vườn ánh sáng, hoa và điều ước đang chờ bạn phía sau cánh cửa.</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Mở cánh cửa</span></button><small><b>BẬT ÂM THANH</b> · Không cần cuộn</small></div></div>}
-
-      <div className={`film-controls ${started ? "controls-visible" : ""}`}>
-        <div className="chapter-track" aria-label="Chọn phân cảnh">{SCENES.map((scene, index) => <button type="button" key={scene.id} className={index === sceneIndex ? "active" : ""} onClick={() => jumpScene(index)} aria-label={`Đi đến cảnh ${scene.label}`}><i /><span>{String(index + 1).padStart(2, "0")}</span></button>)}</div>
-        <div className="control-row"><button className="icon-button primary-control" type="button" onClick={togglePlayback} aria-label={playing ? "Tạm dừng phim" : "Phát phim"}><PlayIcon playing={playing} /></button><span className="timecode">{formatTime(elapsed)}</span><input className="film-scrubber" type="range" min="0" max={TOTAL_DURATION} step="0.05" value={elapsed} onChange={(event) => seek(Number(event.target.value))} style={{ "--progress": `${(elapsed / TOTAL_DURATION) * 100}%` } as React.CSSProperties} aria-label="Tua phim" /><span className="timecode duration">{formatTime(TOTAL_DURATION)}</span><button className="icon-button" type="button" onClick={toggleMuted} aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}><VolumeIcon muted={muted} /></button><button className="icon-button fullscreen-button" type="button" onClick={toggleFullscreen} aria-label="Toàn màn hình"><FullscreenIcon /></button></div>
-      </div>
     </main>
   );
 }
