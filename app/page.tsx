@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 
 const SCENES = [
-  { id: "prologue", label: "Lời mời", duration: 5 },
-  { id: "clockwork", label: "Đúng lúc", duration: 5 },
-  { id: "garden", label: "Khu vườn", duration: 6 },
-  { id: "melody", label: "Ánh nhạc", duration: 5 },
-  { id: "reveal", label: "Tên của bạn", duration: 5 },
-  { id: "gift", label: "Điều ước", duration: 9 },
-  { id: "finale", label: "Tấm thiệp", duration: 9 },
+  { id: "prologue", label: "Lời mời", duration: 3.5 },
+  { id: "clockwork", label: "Đúng lúc", duration: 3.5 },
+  { id: "garden", label: "Khu vườn", duration: 4 },
+  { id: "melody", label: "Ánh nhạc", duration: 3.5 },
+  { id: "reveal", label: "Tên của bạn", duration: 3.5 },
+  { id: "gift", label: "Điều ước", duration: 5 },
+  { id: "finale", label: "Tấm thiệp", duration: 7 },
 ] as const;
 
 const TOTAL_DURATION = SCENES.reduce((total, scene) => total + scene.duration, 0);
@@ -218,7 +218,7 @@ export default function Home() {
     return index === -1 ? SCENES.length - 1 : index;
   }, [elapsed]);
   const sceneElapsed = elapsed - sceneStarts[sceneIndex];
-  const wishReleased = sceneIndex > 5 || (sceneIndex === 5 && sceneElapsed > 5.4);
+  const wishReleased = sceneIndex > 5 || (sceneIndex === 5 && sceneElapsed > 2.8);
 
   useEffect(() => { elapsedRef.current = elapsed; }, [elapsed]);
   useEffect(() => {

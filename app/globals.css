@@ -25,7 +25,7 @@ button { color: inherit; }
 .edge-progress { position: absolute; z-index: 100; top: 0; left: 0; right: 0; height: 3px; background: rgba(78,154,211,.13); }
 .edge-progress i { display: block; height: 100%; border-radius: 0 99px 99px 0; background: linear-gradient(90deg, #53baf2, #fff); box-shadow: 0 0 16px #76cafa; transition: width .12s linear; }
 .scene-stack, .movie-scene { position: absolute; inset: 0; }
-.movie-scene { z-index: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(1.035); transition: opacity .65s ease, transform 1s cubic-bezier(.18,.78,.2,1), visibility .65s; }
+.movie-scene { z-index: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(1.035); transition: opacity .38s ease, transform .62s cubic-bezier(.18,.78,.2,1), visibility .38s; }
 .movie-scene.is-active { z-index: 2; opacity: 1; visibility: visible; transform: scale(1); }
 .movie-scene:not(.is-active) *, .film-app:not(.film-started) .movie-scene * { animation-play-state: paused !important; }
 .movie-scene.is-active * { animation-play-state: running; }
@@ -143,7 +143,7 @@ button { color: inherit; }
 .cover-flower { position: absolute; z-index: 2; width: clamp(180px, 20vw, 290px); color: #75b49f; opacity: .4; filter: drop-shadow(0 18px 30px rgba(1,19,40,.22)); }.cover-flower .flower { width: 100%; height: auto; }.cover-flower-left { left: 2%; bottom: -5%; transform: rotate(10deg); }.cover-flower-right { right: 1%; top: -3%; transform: rotate(-157deg); }
 
 /* Controls */
-.film-controls { position: absolute; z-index: 75; left: 50%; bottom: max(15px, env(safe-area-inset-bottom)); width: min(800px, calc(100% - 42px)); padding: 8px 13px 10px; border: 1px solid rgba(35,108,165,.17); border-radius: 18px; color: var(--ink); background: rgba(248,252,255,.79); box-shadow: 0 15px 40px rgba(10,52,89,.13); opacity: 0; visibility: hidden; transform: translate(-50%,18px); transition: opacity .45s .28s, transform .45s .28s, visibility .45s .28s; backdrop-filter: blur(18px); }
+.film-controls { position: absolute; z-index: 75; left: 50%; bottom: max(15px, env(safe-area-inset-bottom)); width: min(800px, calc(100% - 42px)); padding: 8px 13px 10px; border: 1px solid rgba(35,108,165,.17); border-radius: 18px; color: var(--ink); background: rgba(248,252,255,.79); box-shadow: 0 15px 40px rgba(10,52,89,.13); opacity: 0; visibility: hidden; transform: translate(-50%,18px); transition: opacity .38s .15s, transform .38s .15s, visibility .38s .15s; backdrop-filter: blur(18px); }
 .controls-visible { opacity: 1; visibility: visible; transform: translate(-50%,0); }
 .dark-scene .film-controls { color: #fff; border-color: rgba(255,255,255,.16); background: rgba(5,27,52,.62); }
 .chapter-track { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid rgba(36,107,164,.12); }.dark-scene .chapter-track { border-color: rgba(255,255,255,.11); }
@@ -255,7 +255,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid #6fc8fa; outline-
   filter: blur(5px) saturate(.9);
   transform: perspective(1600px) translate3d(0, 0, -145px) rotateY(3.5deg) scale(1.055);
   transform-style: preserve-3d;
-  transition: opacity .65s ease, filter .8s ease, transform 1s cubic-bezier(.16,.82,.18,1), visibility .65s;
+  transition: opacity .38s ease, filter .5s ease, transform .62s cubic-bezier(.16,.82,.18,1), visibility .38s;
 }
 .movie-scene.is-active {
   filter: none;
