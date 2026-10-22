@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import BlueBouquet from "./blue-bouquet";
+import { BIRTHDAY_MUSIC_VOLUME, startBirthdayMusic } from "./birthday-music";
 
 const SCENES = [
   { id: "prologue", label: "Lời mời", duration: 3.5 },
@@ -160,130 +161,13 @@ function CakeModel({ active, shouldLoad }: { active: boolean; shouldLoad: boolea
     </div>
   );
 }
-
-const BIRTHDAY_MUSIC_VOLUME = 0.12;
-
-function startBirthdayMusic() {
-  const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioCtx) return null;
-  const context = new AudioCtx();
-  const master = context.createGain();
-  const filter = context.createBiquadFilter();
-  const compressor = context.createDynamicsCompressor();
-  const dry = context.createGain();
-  const reverb = context.createConvolver();
-  const wet = context.createGain();
-  const impulse = context.createBuffer(2, Math.floor(context.sampleRate * 1.8), context.sampleRate);
-
-  for (let channel = 0; channel < impulse.numberOfChannels; channel += 1) {
-    const data = impulse.getChannelData(channel);
-    for (let index = 0; index < data.length; index += 1) {
-      const decay = Math.pow(1 - index / data.length, 2.8);
-      data[index] = (Math.random() * 2 - 1) * decay;
-    }
-  }
-
-  master.gain.value = BIRTHDAY_MUSIC_VOLUME;
-  filter.type = "lowpass";
-  filter.frequency.value = 5200;
-  compressor.threshold.value = -22;
-  compressor.knee.value = 18;
-  compressor.ratio.value = 3;
-  compressor.attack.value = 0.012;
-  compressor.release.value = 0.28;
-  dry.gain.value = 0.88;
-  wet.gain.value = 0.13;
-  reverb.buffer = impulse;
-  dry.connect(master);
-  reverb.connect(wet).connect(master);
-  master.connect(filter).connect(compressor).connect(context.destination);
-
-  const beat = 0.44;
-  const melody = [
-    { midi: 67, beats: 0.5, chord: [48, 55, 60] }, { midi: 67, beats: 0.5 }, { midi: 69, beats: 1 }, { midi: 67, beats: 1 }, { midi: 72, beats: 1 }, { midi: 71, beats: 2 },
-    { midi: 67, beats: 0.5, chord: [43, 50, 55] }, { midi: 67, beats: 0.5 }, { midi: 69, beats: 1 }, { midi: 67, beats: 1 }, { midi: 74, beats: 1 }, { midi: 72, beats: 2 },
-    { midi: 67, beats: 0.5, chord: [48, 55, 60] }, { midi: 67, beats: 0.5 }, { midi: 79, beats: 1 }, { midi: 76, beats: 1 }, { midi: 72, beats: 1 }, { midi: 71, beats: 1 }, { midi: 69, beats: 2 },
-    { midi: 77, beats: 0.5, chord: [53, 60, 65] }, { midi: 77, beats: 0.5 }, { midi: 76, beats: 1 }, { midi: 72, beats: 1 }, { midi: 74, beats: 1, chord: [43, 50, 55] }, { midi: 72, beats: 2, chord: [48, 55, 60] },
-  ];
-  const midiToFrequency = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
-
-  const connectWithSpace = (node: AudioNode) => {
-    node.connect(dry);
-    node.connect(reverb);
-  };
-
-  const scheduleBell = (midi: number, start: number, duration: number, accented: boolean) => {
-    const frequency = midiToFrequency(midi);
-    const body = context.createOscillator();
-    const shimmer = context.createOscillator();
-    const bodyGain = context.createGain();
-    const shimmerGain = context.createGain();
-    body.type = "sine";
-    shimmer.type = "sine";
-    body.frequency.setValueAtTime(frequency, start);
-    shimmer.frequency.setValueAtTime(frequency * 2.01, start);
-    body.detune.setValueAtTime(-2, start);
-    bodyGain.gain.setValueAtTime(0.0001, start);
-    bodyGain.gain.exponentialRampToValueAtTime(accented ? 0.105 : 0.078, start + 0.018);
-    bodyGain.gain.exponentialRampToValueAtTime(0.0001, start + Math.max(0.7, duration + 0.62));
-    shimmerGain.gain.setValueAtTime(0.0001, start);
-    shimmerGain.gain.exponentialRampToValueAtTime(accented ? 0.026 : 0.018, start + 0.012);
-    shimmerGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.48);
-    body.connect(bodyGain);
-    shimmer.connect(shimmerGain);
-    connectWithSpace(bodyGain);
-    connectWithSpace(shimmerGain);
-    body.start(start);
-    shimmer.start(start);
-    body.stop(start + Math.max(0.75, duration + 0.68));
-    shimmer.stop(start + 0.52);
-  };
-
-  const schedulePad = (midis: number[], start: number, duration: number) => {
-    midis.forEach((midi, index) => {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.type = index === 0 ? "sine" : "triangle";
-      oscillator.frequency.setValueAtTime(midiToFrequency(midi), start);
-      oscillator.detune.setValueAtTime(index * 2 - 2, start);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.017 : 0.009, start + 0.34);
-      gain.gain.setValueAtTime(index === 0 ? 0.017 : 0.009, start + Math.max(0.36, duration - 0.48));
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-      oscillator.connect(gain);
-      connectWithSpace(gain);
-      oscillator.start(start);
-      oscillator.stop(start + duration + 0.04);
-    });
-  };
-
-  let cursor = 0;
-  let nextNoteTime = context.currentTime + 0.08;
-  const scheduleAhead = () => {
-    while (nextNoteTime < context.currentTime + 0.32) {
-      const note = melody[cursor];
-      const duration = note.beats * beat;
-      scheduleBell(note.midi, nextNoteTime, duration, Boolean(note.chord));
-      if (note.chord) schedulePad(note.chord, nextNoteTime, Math.max(duration, beat * 5.7));
-      nextNoteTime += duration;
-      cursor += 1;
-      if (cursor === melody.length) {
-        cursor = 0;
-        nextNoteTime += beat * 1.6;
-      }
-    }
-  };
-  scheduleAhead();
-  const timer = window.setInterval(scheduleAhead, 90);
-  return { context, master, timer };
-}
-
 export default function Home() {
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const elapsedRef = useRef(0);
+  const finaleLockedRef = useRef(false);
   const lastFrameRef = useRef<number | null>(null);
   const audioRef = useRef<ReturnType<typeof startBirthdayMusic>>(null);
   const filmRef = useRef<HTMLElement>(null);
@@ -306,45 +190,57 @@ export default function Home() {
       const next = Math.min(TOTAL_DURATION, elapsedRef.current + delta);
       elapsedRef.current = next;
       setElapsed(next);
-      if (next >= TOTAL_DURATION) setPlaying(false);
-      else frame = window.requestAnimationFrame(tick);
+      if (next >= TOTAL_DURATION) {
+        finaleLockedRef.current = true;
+        setPlaying(false);
+      } else frame = window.requestAnimationFrame(tick);
     };
     frame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frame);
   }, [playing, started]);
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !started) return;
-    void (playing ? audio.context.resume() : audio.context.suspend());
-  }, [playing, started]);
-  useEffect(() => () => { if (audioRef.current) { window.clearInterval(audioRef.current.timer); void audioRef.current.context.close(); } }, []);
+  useEffect(() => () => { audioRef.current?.dispose(); }, []);
 
-  const ensureAudio = useCallback(() => {
-    if (!audioRef.current) audioRef.current = startBirthdayMusic();
-    return audioRef.current;
-  }, []);
   const beginFilm = useCallback(() => {
+    finaleLockedRef.current = false;
+    lastFrameRef.current = null;
     setStarted(true); setPlaying(true); setElapsed(0); elapsedRef.current = 0;
-    if (audioRef.current) {
-      window.clearInterval(audioRef.current.timer);
-      void audioRef.current.context.close();
-    }
-    const audio = startBirthdayMusic();
+    audioRef.current?.dispose();
+    const audio = startBirthdayMusic(TOTAL_DURATION);
     audioRef.current = audio;
     if (audio) {
       audio.master.gain.setTargetAtTime(muted ? 0 : BIRTHDAY_MUSIC_VOLUME, audio.context.currentTime, 0.07);
-      void audio.context.resume();
+      void audio.context.resume().catch(() => {});
     }
   }, [muted]);
   const togglePlayback = useCallback(() => {
     if (!started) return beginFilm();
-    if (elapsedRef.current >= TOTAL_DURATION) { setElapsed(0); elapsedRef.current = 0; setPlaying(true); void ensureAudio()?.context.resume(); return; }
-    setPlaying((value) => { const next = !value; const audio = ensureAudio(); if (audio) void (next ? audio.context.resume() : audio.context.suspend()); return next; });
-  }, [beginFilm, ensureAudio, started]);
+    // Only the replay button can unlock the final card and start a fresh film.
+    if (finaleLockedRef.current || elapsedRef.current >= TOTAL_DURATION) return;
+    const next = !playing;
+    setPlaying(next);
+    const audio = audioRef.current;
+    if (audio && audio.context.state !== "closed") {
+      void (next ? audio.context.resume() : audio.context.suspend()).catch(() => {});
+    }
+  }, [beginFilm, playing, started]);
   const toggleMuted = useCallback(() => {
-    setMuted((value) => { const next = !value; const audio = ensureAudio(); if (audio) audio.master.gain.setTargetAtTime(next ? 0 : BIRTHDAY_MUSIC_VOLUME, audio.context.currentTime, 0.07); return next; });
-  }, [ensureAudio]);
-  const seek = useCallback((value: number) => { const next = Math.max(0, Math.min(TOTAL_DURATION, value)); elapsedRef.current = next; setElapsed(next); }, []);
+    const next = !muted;
+    setMuted(next);
+    const audio = audioRef.current;
+    if (audio && audio.context.state !== "closed") audio.master.gain.setTargetAtTime(next ? 0 : BIRTHDAY_MUSIC_VOLUME, audio.context.currentTime, 0.07);
+  }, [muted]);
+  const seek = useCallback((value: number) => {
+    if (!started || finaleLockedRef.current) return;
+    const next = Math.max(0, Math.min(TOTAL_DURATION, value));
+    elapsedRef.current = next;
+    setElapsed(next);
+    if (next >= TOTAL_DURATION) {
+      finaleLockedRef.current = true;
+      setPlaying(false);
+      const audio = audioRef.current;
+      if (audio?.context.state === "suspended") void audio.context.resume().catch(() => {});
+    }
+  }, [started]);
   const toggleFullscreen = useCallback(() => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.(); else void document.exitFullscreen?.(); }, []);
   const moveCamera = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
