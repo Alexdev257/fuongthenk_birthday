@@ -251,15 +251,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid #6fc8fa; outline-
 .depth-particles > i { position: absolute; display: block; border-radius: 50%; background: radial-gradient(circle at 32% 25%, #fff 0 18%, #bfeaff 42%, #3d8fc8 72%, transparent 75%); box-shadow: 0 0 12px rgba(147,218,255,.72); transform: translateZ(var(--depth)); animation: pearlFloat ease-in-out infinite; }
 .dark-scene .luxury-depth { opacity: .95; }.scene-garden .luxury-depth, .scene-finale .luxury-depth { opacity: .58; }.scene-prologue .luxury-depth { opacity: .72; }
 
-.crystal-bloom { position: absolute; z-index: 7; width: 112px; height: 190px; perspective: 700px; transform-style: preserve-3d; pointer-events: none; filter: drop-shadow(0 18px 20px rgba(16,76,122,.2)); animation: crystalFloat 5.5s ease-in-out infinite; }
-.crystal-stem { position: absolute; left: 50%; bottom: 0; width: 7px; height: 69%; border: 1px solid rgba(41,114,165,.4); border-radius: 99px; background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(108,195,233,.64), rgba(255,255,255,.28)); transform: translateX(-50%) rotateY(22deg); box-shadow: inset 1px 0 2px #fff, 0 0 10px rgba(94,181,223,.28); }
-.crystal-stem i { position: absolute; width: 45px; height: 20px; border: 1px solid rgba(56,137,177,.38); border-radius: 100% 0 100% 0; background: linear-gradient(150deg, rgba(237,252,255,.9), rgba(104,194,191,.45)); backdrop-filter: blur(3px); }
-.crystal-stem i:first-child { left: -38px; top: 44%; transform: rotate(18deg) rotateY(38deg); }.crystal-stem i:last-child { right: -39px; top: 65%; transform: scaleX(-1) rotate(18deg) rotateY(38deg); }
-.crystal-blossom { position: absolute; left: 50%; top: 25%; width: 28px; height: 28px; transform: translate(-50%,-50%) rotateX(-10deg); transform-style: preserve-3d; animation: blossomTurn 13s linear infinite; }
-.crystal-blossom > i { position: absolute; left: 1px; bottom: 50%; width: 26px; height: 58px; border: 1px solid rgba(49,129,183,.46); border-radius: 80% 20% 72% 24%; background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(169,226,249,.58) 45%, rgba(69,148,201,.35)); box-shadow: inset 5px 5px 13px rgba(255,255,255,.65), 0 6px 14px rgba(31,110,161,.16); transform-origin: 50% 100%; transform: rotateZ(calc(var(--petal) * 60deg)) rotateX(57deg) translateZ(4px); }
-.crystal-blossom > b { position: absolute; z-index: 5; left: 50%; top: 50%; width: 20px; height: 20px; border: 1px solid rgba(255,255,255,.85); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #7cccf4 55%, #1b629c); box-shadow: 0 0 20px rgba(124,204,244,.85); transform: translate(-50%,-50%) translateZ(20px); }
+.crystal-bloom { position: absolute; z-index: 7; width: 124px; height: 198px; perspective: 850px; transform-style: preserve-3d; pointer-events: none; filter: drop-shadow(0 22px 24px rgba(9,54,91,.22)); animation: crystalFloat 5.8s ease-in-out infinite; }
+.crystal-stem { position: absolute; left: 50%; bottom: 0; width: 9px; height: 72%; border: 1px solid rgba(55,132,175,.28); border-radius: 65% 42% 52% 48%; background: linear-gradient(90deg, rgba(228,250,255,.36) 0 12%, rgba(136,216,222,.76) 24%, rgba(73,159,179,.68) 57%, rgba(211,247,251,.7) 82%, rgba(64,136,166,.28)); box-shadow: inset 2px 0 3px rgba(255,255,255,.76), inset -2px 0 3px rgba(24,102,139,.18), 0 3px 12px rgba(70,170,193,.2); transform: translateX(-50%) rotate(-1.8deg) rotateY(16deg); transform-origin: center bottom; }
+.stem-light { position: absolute; left: 1px; top: 4%; width: 2px; height: 91%; border-radius: 99px; background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.15)); opacity: .82; }
+.crystal-leaf { position: absolute; overflow: hidden; width: 53px; height: 25px; border: 1px solid rgba(49,133,161,.35); border-radius: 95% 12% 92% 15% / 92% 14% 88% 18%; background: radial-gradient(ellipse at 28% 18%, rgba(255,255,255,.82), transparent 31%), linear-gradient(145deg, rgba(218,248,244,.9), rgba(97,192,181,.57) 55%, rgba(39,131,143,.33)); box-shadow: inset 5px 4px 10px rgba(255,255,255,.35), inset -5px -4px 11px rgba(42,126,142,.12), 0 8px 15px rgba(24,100,120,.12); transform-style: preserve-3d; }
+.crystal-leaf b { position: absolute; left: 4px; top: 50%; width: 88%; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.8), rgba(39,125,145,.35), transparent); transform: rotate(-7deg); transform-origin: left center; }
+.crystal-leaf b::before, .crystal-leaf b::after { content: ""; position: absolute; left: 35%; width: 17px; height: 1px; background: rgba(69,144,153,.25); transform-origin: left center; }
+.crystal-leaf b::before { transform: rotate(-27deg); }.crystal-leaf b::after { transform: rotate(31deg); }
+.leaf-left { left: -45px; top: 43%; transform: rotate(15deg) rotateY(31deg) rotateX(-5deg); }.leaf-right { right: -46px; top: 65%; transform: scaleX(-1) rotate(18deg) rotateY(36deg) rotateX(6deg); }
+.crystal-blossom { position: absolute; left: 50%; top: 23%; width: 62px; height: 62px; transform: translate(-50%,-50%) rotateX(-13deg) rotateY(-7deg) rotateZ(-2deg); transform-style: preserve-3d; animation: blossomTurn 6.4s ease-in-out infinite; }
+.petal-ring { position: absolute; inset: 0; transform-style: preserve-3d; }
+.petal-ring > i { position: absolute; left: 50%; top: 50%; display: block; border: 1px solid rgba(77,146,188,.34); transform-origin: 50% 92%; backface-visibility: hidden; }
+.petal-ring > i::after { content: ""; position: absolute; left: 50%; top: 11%; width: 1px; height: 72%; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.78) 48%, rgba(76,153,194,.16)); transform: translateX(-50%); opacity: .72; }
+.petal-ring-back > i { width: 34px; height: 58px; border-radius: 53% 47% 43% 57% / 72% 68% 32% 28%; background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.98) 0 18%, transparent 42%), linear-gradient(145deg, rgba(249,254,255,.97), rgba(185,229,247,.78) 48%, rgba(72,150,198,.42) 100%); box-shadow: inset 7px 5px 14px rgba(255,255,255,.68), inset -7px -8px 15px rgba(60,133,180,.13), 0 8px 15px rgba(15,74,117,.15); transform: translate(-50%,-92%) rotateZ(calc(var(--petal) * 51.43deg)) rotateX(54deg) rotateY(calc((var(--petal) - 3) * 2deg)) translateZ(2px); }
+.petal-ring-back > i:nth-child(2n) { width: 32px; height: 55px; filter: brightness(.97); }.petal-ring-back > i:nth-child(3n) { transform: translate(-50%,-92%) rotateZ(calc(var(--petal) * 51.43deg + 3deg)) rotateX(58deg) rotateY(-5deg) translateZ(0); }
+.petal-ring-front { transform: translateZ(11px) rotateZ(15deg); }
+.petal-ring-front > i { width: 24px; height: 42px; border-radius: 55% 45% 46% 54% / 70% 72% 28% 30%; background: radial-gradient(ellipse at 32% 18%, #fff 0 20%, transparent 44%), linear-gradient(155deg, rgba(255,255,255,.98), rgba(183,230,249,.82) 55%, rgba(69,151,203,.42)); box-shadow: inset 5px 5px 11px rgba(255,255,255,.72), inset -4px -6px 10px rgba(49,127,177,.12), 0 5px 11px rgba(24,92,139,.12); transform: translate(-50%,-88%) rotateZ(calc(var(--petal) * 72deg)) rotateX(66deg) translateZ(8px); }
+.petal-ring-front > i:nth-child(even) { height: 39px; transform: translate(-50%,-88%) rotateZ(calc(var(--petal) * 72deg - 2deg)) rotateX(70deg) translateZ(10px); }
+.crystal-heart { position: absolute; z-index: 6; left: 50%; top: 50%; width: 27px; height: 27px; border: 1px solid rgba(255,255,255,.9); border-radius: 50%; background: radial-gradient(circle at 34% 27%, #fff 0 13%, #caefff 28%, #73c4ec 57%, #1d6da7 100%); box-shadow: inset 3px 3px 7px rgba(255,255,255,.82), inset -4px -5px 9px rgba(12,77,127,.24), 0 0 24px rgba(120,209,250,.78), 0 5px 10px rgba(9,59,99,.24); transform: translate(-50%,-50%) translateZ(28px); }
+.crystal-heart > i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #f3fcff; box-shadow: 0 0 5px #fff; }.crystal-heart > i:nth-child(1) { left: 5px; top: 7px; }.crystal-heart > i:nth-child(2) { right: 6px; top: 5px; width: 3px; height: 3px; }.crystal-heart > i:nth-child(3) { left: 11px; bottom: 4px; width: 2px; height: 2px; opacity: .76; }
 .prologue-crystal { right: 5%; bottom: -2%; transform: rotate(-11deg) scale(.9); opacity: .74; }
-.gift-crystal { z-index: 4; bottom: -2%; opacity: .65; }.gift-crystal.crystal-one { right: 2%; transform: rotate(-13deg); }.gift-crystal.crystal-two { right: 44%; transform: rotate(12deg) scale(.72); animation-delay: -2.4s; }
+.gift-crystal { z-index: 4; bottom: -1%; opacity: .88; filter: brightness(1.2) saturate(.82) drop-shadow(0 22px 25px rgba(3,30,54,.3)); }.gift-crystal.crystal-one { right: 2%; transform: rotate(-9deg); }.gift-crystal.crystal-two { right: 44%; transform: rotate(10deg) scale(.72); animation-delay: -2.4s; }
 
 .music-box { transform-style: preserve-3d; }
 .box-crown { position: absolute; z-index: 8; left: 50%; top: 30%; width: 42%; height: 19%; opacity: 0; transform: translate3d(-50%, 40%, 58px); transform-style: preserve-3d; }.box-open .box-crown { animation: crownRise .8s .78s cubic-bezier(.18,.88,.18,1) forwards; }
@@ -298,7 +310,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid #6fc8fa; outline-
 @keyframes orbitalTurn { from { rotate: 0deg; } to { rotate: 360deg; } }
 @keyframes pearlFloat { 0%,100% { opacity: .18; translate: 0 0; scale: .65; } 50% { opacity: .82; translate: 7px -22px; scale: 1.18; } }
 @keyframes crystalFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -9px; } }
-@keyframes blossomTurn { from { rotate: 0deg; } to { rotate: 360deg; } }
+@keyframes blossomTurn {
+  0%,100% { transform: translate(-50%,-50%) rotateX(-13deg) rotateY(-7deg) rotateZ(-2deg) scale(1); }
+  48% { transform: translate(-50%,-51.5%) rotateX(-9deg) rotateY(1deg) rotateZ(2.5deg) scale(1.025); }
+  72% { transform: translate(-50%,-50.5%) rotateX(-11deg) rotateY(-2deg) rotateZ(1deg) scale(1.012); }
+}
 @keyframes crownRise { from { opacity: 0; transform: translate3d(-50%,45%,20px) scale(.7); } to { opacity: 1; transform: translate3d(-50%,0,58px) scale(1); } }
 @keyframes modelLevitate { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-9px) scale(1.012); } }
 @keyframes modelOrbit { from { rotate: 0deg; } to { rotate: 360deg; } }
@@ -311,13 +327,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid #6fc8fa; outline-
   .movie-scene { filter: none; transform: translate3d(0,0,-80px) scale(1.045); }.movie-scene.is-active { transform: translate3d(0,0,0) scale(1.012); }
   .luxury-depth { inset: -3%; }.depth-aurora { width: 96vw; height: 96vw; filter: blur(48px); }.orbit-near { right: -47vw; top: 25%; width: 92vw; }.orbit-far { left: -62vw; bottom: -36vw; width: 118vw; }.depth-particles > i:nth-child(3n) { display: none; }
   .prologue-crystal { right: -10%; bottom: 2%; width: 84px; height: 145px; opacity: .58; }
-  .gift-crystal { width: 83px; height: 145px; }.gift-crystal.crystal-one { right: -8%; }.gift-crystal.crystal-two { right: 75%; }
+  .gift-crystal { width: 92px; height: 158px; bottom: 1%; }.gift-crystal.crystal-one { right: 1%; }.gift-crystal.crystal-two { right: 75%; }
   .model-stage.model-live { transform: none; }.model-live .cake-model { animation-duration: 5.8s; }.model-orbit-one { width: 74%; height: 27%; }.model-orbit-two { width: 42%; height: 58%; }.model-crown { top: 19%; }.model-turntable::before { height: 84%; }
   .cover-card { transform: translateZ(32px); }.cover-jewel-world { width: 135vw; }.cover-crystal { width: 76px; height: 137px; bottom: 1%; }.cover-crystal-left { left: -5%; }.cover-crystal-right { right: -5%; }.cover-diamond { width: 10px; height: 10px; }
 }
 
 @media (max-width: 390px), (max-height: 740px) {
-  .prologue-crystal, .gift-crystal.crystal-two { display: none; }.gift-crystal.crystal-one { opacity: .42; }
+  .prologue-crystal, .gift-crystal.crystal-two { display: none; }.gift-crystal.crystal-one { right: 0; opacity: .76; }
   .model-orbit-two { display: none; }.model-crown { top: 18%; gap: 15px; }.cover-crystal { opacity: .3; }
 }
 

@@ -65,8 +65,16 @@ function Sparkle({ className = "" }: { className?: string }) {
 function CrystalBloom({ className = "" }: { className?: string }) {
   return (
     <div className={`crystal-bloom ${className}`} aria-hidden="true">
-      <div className="crystal-stem"><i /><i /></div>
-      <div className="crystal-blossom">{Array.from({ length: 6 }, (_, index) => <i key={index} style={{ "--petal": index } as React.CSSProperties} />)}<b /></div>
+      <div className="crystal-stem">
+        <span className="stem-light" />
+        <i className="crystal-leaf leaf-left"><b /></i>
+        <i className="crystal-leaf leaf-right"><b /></i>
+      </div>
+      <div className="crystal-blossom">
+        <span className="petal-ring petal-ring-back">{Array.from({ length: 7 }, (_, index) => <i key={index} style={{ "--petal": index } as React.CSSProperties} />)}</span>
+        <span className="petal-ring petal-ring-front">{Array.from({ length: 5 }, (_, index) => <i key={index} style={{ "--petal": index } as React.CSSProperties} />)}</span>
+        <b className="crystal-heart"><i /><i /><i /></b>
+      </div>
     </div>
   );
 }
