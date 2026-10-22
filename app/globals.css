@@ -11,14 +11,17 @@
 .garden-bouquet { z-index: 6; left: 50%; bottom: 1%; width: min(47vw, 580px); height: 61%; transform: translateX(-50%); }
 .finale-bouquet { z-index: 8; right: -1%; bottom: 0; width: clamp(150px, 19vw, 285px); height: 41%; transform: rotate(-18deg); transform-origin: center bottom; }
 .finale-bouquet .bouquet-light, .finale-bouquet .bouquet-shadow { display: none; }
+.finale-mascot { position: absolute; z-index: 8; left: clamp(12px, 2.4vw, 40px); bottom: max(12px, env(safe-area-inset-bottom)); width: clamp(110px, 15vw, 205px); height: min(12vh, 130px); background: url("/memories/fuongthenn-heart-mascot.png") center bottom / contain no-repeat; filter: drop-shadow(0 8px 10px rgba(30,95,110,.15)); pointer-events: none; }
 @media (max-width: 760px) {
   .garden-bouquet { bottom: 6%; width: min(100vw, 440px); height: 57%; }
   .finale-bouquet { right: -4%; bottom: 1%; width: 37vw; height: 27%; opacity: .92; transform: rotate(-24deg); }
+  .finale-mascot { left: max(12px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); width: min(36vw, 155px); height: 23%; }
 }
 @media (orientation: landscape) and (max-height: 600px) {
   .garden-bouquet { left: 76%; bottom: 0; width: 40vw; height: 87%; }
   .garden-scene .garden-copy { left: 28%; top: 48%; width: 45vw; }
   .finale-bouquet { right: -3%; width: 20vw; height: 47%; }
+  .finale-mascot { left: 12px; bottom: max(8px, env(safe-area-inset-bottom)); width: 15vw; height: 13%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .blue-bouquet { animation: none; }

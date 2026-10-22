@@ -336,6 +336,7 @@ export default function Home() {
           <PetalRain className="finale-petals" /><div className="finale-sun" /><div className="finale-ribbon ribbon-left" /><div className="finale-ribbon ribbon-right" />
           <Flower className="finale-flower flower-left" /><Flower className="finale-flower flower-right" delay={-1.1} />
           <BlueBouquet className="finale-bouquet" active={started && sceneIndex === 6} />
+          <div className="finale-mascot" role="img" aria-label="Nhân vật xanh đáng yêu tạo hình trái tim dành tặng FuongThenn" />
           <div className="finale-layout">
             <div className="finale-gallery" aria-label="Những khoảnh khắc đáng yêu của FuongThenn">
               <PortraitFrame src={MEMORY_PHOTOS.sea} className="memory-photo memory-photo-sea" caption="BLUE DAY" />
