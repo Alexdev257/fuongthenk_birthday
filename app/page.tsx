@@ -283,7 +283,7 @@ export default function Home() {
       <div className="scene-stack">
         <SceneFrame active={sceneIndex === 0} className="prologue-scene">
           <div className="porcelain-grid" /><div className="prologue-orbit orbit-one" /><div className="prologue-orbit orbit-two" />
-          <div className="story-copy prologue-copy"><p>LỜI MỜI · THE BLUE CONSERVATORY</p><h1>Có một cánh cửa<br /><em>chỉ mở hôm nay.</em></h1><span>Bước thật khẽ nhé — khu vườn này đã chuẩn bị một điều đặc biệt cho bạn.</span></div>
+          <div className="story-copy prologue-copy"><p>LỜI MỜI · FROM ALEX WITH LOVE</p><h1>Có một cánh cửa<br /><em>chỉ mở hôm nay.</em></h1><span>Bước thật khẽ nhé — khu vườn này đã chuẩn bị một điều đặc biệt cho cục dàng đó.</span></div>
           <MusicBox open className="hero-box" />
           <CrystalBloom className="prologue-crystal" />
           <Flower className="prologue-flower flower-a" /><Flower className="prologue-flower flower-b" delay={-1.4} />
@@ -303,7 +303,7 @@ export default function Home() {
           <div className="garden-dome" aria-hidden="true"><i /><b /><span>✦</span></div>
           <div className="garden-platform"><i /><b /></div>
           <BlueBouquet className="garden-bouquet" active={started && playing && sceneIndex === 2} loadModel={started && sceneIndex >= 1 && sceneIndex <= 2} />
-          <div className="story-copy garden-copy"><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của bạn.</span></div>
+          <div className="story-copy garden-copy"><h2>Mỗi cánh hoa mang<br /><em>một điều dịu dàng.</em></h2><span>Chúng không nở theo mùa — chúng nở theo nụ cười của cục dàng.</span></div>
           <span className="paper-bird bird-one">⌁</span><span className="paper-bird bird-two">⌁</span>
         </SceneFrame>
 
@@ -312,7 +312,7 @@ export default function Home() {
           <div className="melody-disc" aria-hidden="true"><i /><i /><i /><b>F</b><span>♪</span></div>
           <svg className="music-staff" viewBox="0 0 900 390" fill="none" aria-hidden="true"><path d="M-20 110C185 0 302 232 492 122s282-16 435 66M-28 155C174 43 306 274 498 166s277-9 436 66M-35 200C169 88 311 318 504 211s273-4 437 66M-42 245C166 133 314 360 510 256s268 1 438 67" />{[[105,99],[236,184],[373,109],[520,203],[665,116],[792,235]].map(([x,y], index) => <g key={`${x}-${y}`} className={`staff-note note-${index + 1}`}><circle cx={x} cy={y} r="13" /><path d={`M${x + 12} ${y}v-70`} /></g>)}</svg>
           <div className="wish-constellation" aria-hidden="true"><span>BÌNH YÊN</span><span>RỰC RỠ</span><span>MAY MẮN</span><span>ĐƯỢC YÊU</span></div>
-          <div className="story-copy melody-copy"><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Bình yên, rực rỡ, may mắn và được yêu — tất cả đang tìm đường đến bạn.</span></div>
+          <div className="story-copy melody-copy"><h2>Mỗi nốt nhạc giữ<br />một lời chúc.</h2><span>Bình yên, rực rỡ, may mắn và được yêu — tất cả đang tìm đường đến cục dàng.</span></div>
         </SceneFrame>
 
         <SceneFrame active={sceneIndex === 4} className="reveal-scene">
@@ -325,7 +325,7 @@ export default function Home() {
 
         <SceneFrame active={sceneIndex === 5} className={`gift-scene ${wishReleased ? "wish-released" : ""}`}>
           <div className="gift-stars" aria-hidden="true">{stars.slice(0, 22).map((star, index) => <i key={index} style={{ left: `${star.left}%`, top: `${star.top}%`, animationDelay: `${star.delay}s` }} />)}</div>
-          <div className="story-copy gift-copy"><h2>{wishReleased ? "Điều ước đã được cất vào giai điệu." : "Một vòng quay cho một điều ước."}</h2><span>{wishReleased ? "Từ giờ, mỗi lần nhớ lại, điều đẹp đẽ ấy sẽ gần bạn thêm một chút." : "Nhắm mắt một giây — phần còn lại cứ để chiếc hộp nhạc lo."}</span><div className="wish-beats"><i /><i /><i /></div></div>
+          <div className="story-copy gift-copy"><h2>{wishReleased ? "Điều ước đã được cất vào giai điệu." : "Một vòng quay cho một điều ước."}</h2><span>{wishReleased ? "Từ giờ, mỗi lần nhớ lại, điều đẹp đẽ ấy sẽ gần Thenn thêm một chút." : "Nhắm mắt một giây — phần còn lại cứ để chiếc hộp nhạc lo."}</span><div className="wish-beats"><i /><i /><i /></div></div>
           <CakeModel active={sceneIndex === 5} shouldLoad={sceneIndex >= 4} />
           <CrystalBloom className="gift-crystal crystal-one" /><CrystalBloom className="gift-crystal crystal-two" />
           <div className={`wish-aura ${wishReleased ? "released" : ""}`}><i /><span /></div>
@@ -347,12 +347,12 @@ export default function Home() {
               <i className="memory-tape tape-one" /><i className="memory-tape tape-two" />
               <span className="memory-sticker sticker-flower">✿</span><span className="memory-sticker sticker-heart">♡</span>
             </div>
-            <div className="finale-ticket"><div className="ticket-number">FOR YOU · NO. 01</div><p>TẤM THIỆP CUỐI KHU VƯỜN</p><h2>Happy Birthday</h2><h3>FuongThenn!</h3><div className="ticket-rule"><i>✿</i></div><span>Chúc bạn một tuổi mới dịu dàng với chính mình,<br />can đảm với những điều mình yêu,<br />và luôn có thật nhiều lý do để mỉm cười.</span><strong>May your days bloom in blue.</strong><button type="button" onClick={beginFilm}>↻&nbsp;&nbsp; Xem lại thước phim</button></div>
+            <div className="finale-ticket"><div className="ticket-number">FOR YOU · NO. 01</div><p>TẤM THIỆP CUỐI KHU VƯỜN</p><h2>Happy Birthday</h2><h3>FuongThenn!</h3><div className="ticket-rule"><i>✿</i></div><span>Chúc bé một tuổi mới dịu dàng với chính mình,<br />can đảm với những điều mình yêu,<br />và luôn có thật nhiều lý do để mỉm cười.</span><strong>Wish you all the best in your special day <span style={{ fontSize: "1.5em", lineHeight: 1, verticalAlign: "middle" }}>🫶</span>.</strong><button type="button" onClick={beginFilm}>↻&nbsp;&nbsp; Xem lại</button></div>
           </div>
         </SceneFrame>
       </div>
 
-      {!started && <div className="premiere-overlay"><div className="cover-corners"><i /><i /><i /><i /></div><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><OrbitalBloom className="premiere-bloom" /><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>A PRIVATE BIRTHDAY FILM · ONE OF ONE</p><h1><small>The Blue Conservatory</small>FuongThenn</h1><div className="cover-divider"><i /> made with love <i /></div><span>Một khu vườn ánh sáng, hoa và điều ước đang chờ bạn phía sau cánh cửa.</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Mở cánh cửa</span></button><small><b>BẬT ÂM THANH</b> · Không cần cuộn</small></div></div>}
+      {!started && <div className="premiere-overlay"><div className="cover-corners"><i /><i /><i /><i /></div><div className="cover-rays" /><div className="cover-jewel-world"><i className="cover-halo halo-outer" /><i className="cover-halo halo-inner" /><b className="cover-diamond diamond-one" /><b className="cover-diamond diamond-two" /><b className="cover-diamond diamond-three" /></div><OrbitalBloom className="premiere-bloom" /><div className="cover-flower cover-flower-left"><Flower /></div><div className="cover-flower cover-flower-right"><Flower delay={-1.3} /></div><CrystalBloom className="cover-crystal cover-crystal-left" /><CrystalBloom className="cover-crystal cover-crystal-right" /><div className="cover-card"><div className="cover-emblem"><i /><span>F</span><b>✿</b></div><p>HAPPY BIRTHDAY</p><h1>FuongThenn</h1><div className="cover-divider"><i /> from alex with love <i /></div><span>Một khu vườn ánh sáng, hoa và điều ước đang chờ cục dàng phía sau cánh cửa đóoo.</span><button type="button" onClick={beginFilm}><i><PlayIcon playing={false} /></i><span>Ấn dô đây nhaa</span></button><small><b>BẬT LOA TO XÍU NHOO</b> · Không cần cuộn</small></div></div>}
     </main>
   );
 }
