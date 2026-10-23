@@ -3,7 +3,7 @@ import "./globals.css";
 import "./typography.css";
 
 export const metadata: Metadata = {
-  title: "The Blue Music Box — For FuongThenn ✿",
+  title: "FuongThenn",
   description: "Một hộp nhạc sinh nhật tương tác với khu vườn hoa sứ, sân khấu xanh và món quà 3D dành riêng cho FuongThenn.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
